@@ -1,0 +1,26 @@
+## scripts
+
+This repository contains scripts that I actively develop & use on my GNU/Linux machine.
+
+### launch_searx.sh
+
+create a cron job to execute this script.
+
+dependencies:
+ - sudo (i haven't tried it with doas yet)
+ - docker installation (do not use snap)
+
+### pi & piw
+
+ssh into my dear raspberry pi, static ip's change according to connection medium (lan vs wlan)
+
+### volumeup.sh
+
+used in i3wm to set maximum volume level. calling this script increases current volume level by 5%
+change the number in condition part of script ($current -lt 200) to set the maximum level
+
+dependencies:
+ - pactl
+ - pulseaudio (?)
+ - awk
+ - sed
