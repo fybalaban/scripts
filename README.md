@@ -24,3 +24,10 @@ dependencies:
  - pulseaudio (?)
  - awk
  - sed
+
+### update_repos.py
+
+updates repositories kept in $HOME/sources by calling 'git pull' using subprocess
+
+dependencies:
+ - [termcolor](https://pypi.org/project/termcolor)
