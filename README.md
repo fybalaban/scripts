@@ -31,3 +31,10 @@ updates repositories kept in $HOME/sources by calling 'git pull' using subproces
 
 dependencies:
  - [termcolor](https://pypi.org/project/termcolor)
+
+### launch_polybar.sh
+
+used by i3wm to launch polybar on occasions. ripped it off from arch wiki ;)
+
+dependencies:
+ - [polybar](https://github.com/polybar/polybar)
