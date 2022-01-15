@@ -4,11 +4,11 @@ This repository contains scripts that I actively develop & use on my GNU/Linux m
 
 ### launch_searx.sh
 
-create a cron job to execute this script.
+create a cron job to execute this script on reboot.
 
 dependencies:
- - sudo (i haven't tried it with doas yet)
- - docker installation (do not use snap)
+ - doas
+ - docker installation (do not use snap to install)
 
 ### pi & piw
 
