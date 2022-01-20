@@ -19,6 +19,9 @@ ssh into my dear raspberry pi, static ip's change according to connection medium
 used in i3wm to set maximum volume level. calling this script increases current volume level by 5%
 change the number in condition part of script ($current -lt 200) to set the maximum level
 
+used by:
+ - i3wm configuration
+
 dependencies:
  - pactl
  - pulseaudio (?)
@@ -36,5 +39,16 @@ dependencies:
 
 used by i3wm to launch polybar on occasions. ripped it off from arch wiki ;)
 
+used by:
+ - i3wm configuration
+ - source_polybar.py
+
 dependencies:
  - [polybar](https://github.com/polybar/polybar)
+
+### source_polybar.py
+
+generates and deploys my polybar configuration with color parameters. significantly reduces the time it takes to change colors.
+
+dependencies:
+ - launch_polybar.sh
