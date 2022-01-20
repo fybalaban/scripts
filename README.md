@@ -1,22 +1,23 @@
 ## scripts
 
-This repository contains scripts that I actively develop & use on my GNU/Linux machine.
+This repository contains Python and shell scripts that I actively develop and utilize on my GNU/Linux [(or as I've recently taken to calling it, GNU plus Linux)](https://balaban.software/tribute.html) machine.
 
 ### launch_searx.sh
 
-create a cron job to execute this script on reboot.
+starts a docker container for searx. use a cron job to execute this script on reboot.
+> @reboot sh $HOME/scripts/launch_searx.sh
 
 dependencies:
  - docker installation (do not use snap to install)
 
 ### pi & piw
 
-ssh into my dear raspberry pi, static ip's change according to connection medium (lan vs wlan)
+ssh into my dear raspberry pi, static ip addresses change according to connection medium (lan vs wlan)
 
 ### volumeup.sh
 
 used in i3wm to set maximum volume level. calling this script increases current volume level by 5%
-change the number in condition part of script ($current -lt 200) to set the maximum level
+change the number in condition part of script ($current -lt 200) to set the upper limit
 
 used by:
  - i3wm configuration
@@ -24,8 +25,6 @@ used by:
 dependencies:
  - pactl
  - pulseaudio (?)
- - awk
- - sed
 
 ### update_repos.py
 
@@ -50,4 +49,5 @@ dependencies:
 generates and deploys my polybar configuration with color parameters. significantly reduces the time it takes to change colors.
 
 dependencies:
- - launch_polybar.sh
+ - [launch_polybar.sh](https://github.com/fybalaban/scripts#launch_polybarsh)
+ - [polybar](https://github.com/polybar/polybar) (I mean how can you use this config without polybar?)
