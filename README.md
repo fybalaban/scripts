@@ -7,7 +7,6 @@ This repository contains scripts that I actively develop & use on my GNU/Linux m
 create a cron job to execute this script on reboot.
 
 dependencies:
- - doas
  - docker installation (do not use snap to install)
 
 ### pi & piw
@@ -41,7 +40,7 @@ used by i3wm to launch polybar on occasions. ripped it off from arch wiki ;)
 
 used by:
  - i3wm configuration
- - source_polybar.py
+ - [source_polybar.py](https://github.com/fybalaban/scripts#source_polybarpy)
 
 dependencies:
  - [polybar](https://github.com/polybar/polybar)
