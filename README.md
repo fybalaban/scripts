@@ -51,3 +51,10 @@ generates and deploys my polybar configuration with color parameters. significan
 dependencies:
  - [launch_polybar.sh](https://github.com/fybalaban/scripts#launch_polybarsh)
  - [polybar](https://github.com/polybar/polybar) (I mean how can you use this config without polybar?)
+
+### launch_compton.sh
+
+restarting i3 using $mod+shift+r causes multiple instances of compton to be created :) i noticed that when the CPU temperature hit 85 degrees :) never doing that again :)
+
+dependencies:
+ - [compton](https://github.com/chjj/compton)
