@@ -58,3 +58,10 @@ restarting i3 using $mod+shift+r causes multiple instances of compton to be crea
 
 dependencies:
  - [compton](https://github.com/chjj/compton)
+
+### launch_picom.sh
+
+if there isn't any instance of picom running, creates one.
+
+dependencies:
+ - [picom](https://github.com/yshui/picom)
