@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os.path
 import subprocess
 import sys
@@ -10,6 +11,9 @@ def main():
     backg_colour = '#282A2E'
     backg_clralt = '#373B41'
     foreg_colour = '#C5C8C6'
+
+    interface_wlan = 'wlp3s0'
+    interface_ethr = 'enp2s0'
 
     config_text = f"""[colors]
     background = {backg_colour}
@@ -24,7 +28,7 @@ def main():
     width = 100%
     height = 2.5%
     radius = 0
-    font-0 = "JetBrainsMono Nerd Font;2"
+    font-0 = "JetBrainsMono;2"
     
     background = ${{colors.background}}
     foreground = ${{colors.foreground}}
@@ -60,19 +64,20 @@ def main():
     [module/xworkspaces]
     type = internal/xworkspaces
     
-    label-active = %name%
+    label-active = ●
+    label-active-foreground = ${{colors.primary}}
     label-active-background = ${{colors.background-alt}}
     label-active-underline= ${{colors.primary}}
     label-active-padding = 1
     
-    label-occupied = %name%
+    label-occupied = ●
     label-occupied-padding = 1
     
-    label-urgent = %name%
+    label-urgent = ●
     label-urgent-background = ${{colors.alert}}
     label-urgent-padding = 1
     
-    label-empty = %name%
+    label-empty = ●
     label-empty-foreground = ${{colors.disabled}}
     label-empty-padding = 1
     
@@ -82,53 +87,26 @@ def main():
     
     [module/aud]
     type = internal/pulseaudio
-    
-    format-volume-prefix = "奔 "
+    format-volume-prefix = "VOL "
     format-volume-prefix-foreground = ${{colors.primary}}
     format-volume = <label-volume>
-    
     label-volume = %percentage%%
-    label-muted = 婢
+    label-muted = MUT
     label-muted-foreground = ${{colors.disabled}}
     
     [module/bat]
     type = internal/battery
     full-at = 100
-    time-format = %H:%M
-    
-    ; Use the following command to list batteries and adapters:
-    ; $ ls -1 /sys/class/power_supply/
     battery = BAT0
-    adapter = ADP1
+    adapter = ADP0
     poll-interval = 5
     
-    format-charging = %{prc_fwrappers}<animation-charging>%{{F-}}  <label-charging>
-    format-discharging = %{prc_fwrappers}<animation-discharging>%{{F-}}  <label-discharging>
-    format-full = %{prc_fwrappers}<ramp-capacity>%{{F-}}  <label-full>
+    format-charging = %{prc_fwrappers}CHR%{{F-}} <label-charging>
+    format-discharging = %{prc_fwrappers}DIS%{{F-}} <label-discharging>
+    format-full = %{prc_fwrappers}FULL%{{F-}}
     
     label-charging = %percentage%%
     label-discharging = %percentage%%
-    label-full = FULL
-    
-    ramp-capacity-0 = 
-    ramp-capacity-1 = 
-    ramp-capacity-2 = 
-    ramp-capacity-3 = 
-    ramp-capacity-4 = 
-    
-    animation-charging-0 = 
-    animation-charging-1 = 
-    animation-charging-2 = 
-    animation-charging-3 = 
-    animation-charging-4 = 
-    animation-charging-framerate = 1000
-    
-    animation-discharging-0 = 
-    animation-discharging-1 = 
-    animation-discharging-2 = 
-    animation-discharging-3 = 
-    animation-discharging-4 = 
-    animation-discharging-framerate = 1000
     
     [module/mem]
     type = internal/memory
@@ -149,24 +127,15 @@ def main():
     interval = 10
     thermal-zone = 0
     hwmon-path = /sys/class/hwmon/hwmon1/temp1_input
-    base-temperature = 20
-    warn-temperature = 70
-    format-prefix = "﨎 "
+    format-prefix = "TEMP "
     format-prefix-foreground = ${{colors.primary}}
-    label= %temperature-c%
-    
-    ; ramp-signal-0 = :o
-    ; ramp-signal-1 = >:
-    ; ramp-signal-2 = :/
-    ; ramp-signal-3 = ^^
-    ; ramp-signal-4 = :D
-    ; ramp-signal-5 = :>
+    label = %temperature-c%
     
     [module/wlan]
     type = internal/network
     interval = 5
-    interface = wlp3s0
-    label-connected = %{prc_fwrappers}直%{{F-}} %essid% %signal%%
+    interface = {interface_wlan}
+    label-connected = %essid%
     label-disconnected =
     format-connected = <label-connected>
     format-disconnected = <label-disconnected>
@@ -174,17 +143,8 @@ def main():
     [module/eth]
     type = internal/network
     interval = 5
-    interface = enp2s0
-    label-connected = %{prc_fwrappers}囹%{{F-}} UP
-    label-disconnected =
-    format-connected = <label-connected>
-    format-disconnected = <label-disconnected>
-    
-    [module/tthr]
-    type = internal/network
-    interval = 5
-    interface = usb0
-    label-connected = %{prc_fwrappers}臨%{{F-}} UP
+    interface = {interface_ethr}
+    label-connected = UP
     label-disconnected =
     format-connected = <label-connected>
     format-disconnected = <label-disconnected>
@@ -192,14 +152,15 @@ def main():
     [module/date]
     type = internal/date
     interval = 60
-    date = %Y-%m-%d %H:%M
+    date = %d-%m-%Y %H:%M
     label = %date%
     label-foreground = ${{colors.primary}}
     
     [settings]
     screenchange-reload = true
     pseudo-transparency = true"""
-    sys.argv.remove('source_polybar.py')
+    if 'source_polybar.py' in sys.argv:
+        sys.argv.remove('source_polybar.py')
     sys.argv.reverse()
     location = ''
     lct_home = os.environ.get('HOME')
@@ -212,9 +173,9 @@ def main():
     # flag_deploy: -d or --deploy
     while len(sys.argv) != 0:
         item = sys.argv.pop()
-        flag_print = item == '-p' or item == '--print'
-        flag_deploy = item == '-d' or item == '--deploy'
-        flag_restrt = item == '-r' or item == '--restart'
+        flag_print = item == '-p' or item == '--print' or flag_print
+        flag_deploy = item == '-d' or item == '--deploy' or flag_deploy
+        flag_restrt = item == '-r' or item == '--restart' or flag_restrt
         if item == '-l' or item == '--location':
             if len(sys.argv) > 0:
                 _ = sys.argv.pop()
