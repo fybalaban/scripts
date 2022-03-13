@@ -65,3 +65,12 @@ if there isn't any instance of picom running, creates one.
 
 dependencies:
  - [picom](https://github.com/yshui/picom)
+
+## fetchpy
+
+fetchpy is an alternative to neofetch. I was tinkering around with my neofetch config file, and at some point I got frustrated enough to create a full-blown fetch script.
+
+This took me approximately ~6 hours to complete, and I'm proud of it! (I drank too much mineral soda with extra citric acid, acid reflux is really getting wild lol)
+
+dependencies:
+ - [termcolor](https://pypi.org/project/termcolor)
