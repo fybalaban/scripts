@@ -74,3 +74,22 @@ This took me approximately ~6 hours to complete, and I'm proud of it! (I drank t
 
 dependencies:
  - [termcolor](https://pypi.org/project/termcolor)
+
+## dotman.py
+
+dotman is (yet) another DOTfiles MANager that **I've** made for **my** machine. 
+ - Will it work on yours? Probably.
+ - Do you really need it? Probably not.
+
+### features of dotman
+
+ - [x] Backup to any given local and remote repository
+ - [x] Use whitelist to select folders
+ - [x] Deploy to $HOME/.config
+ - [x] Interactive mode
+ - [x] Automatable mode 
+ - [ ] Verbose output
+ - [ ] Logging capability
+
+dependencies:
+ - python installation lol
