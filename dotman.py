@@ -45,7 +45,7 @@ def grab_dotfiles():
 
 def copy(source, dest, method='subprocess'):
     if method == 'subprocess':
-        p = sp.Popen(['cp', '-auv', source, dest])
+        p = sp.Popen(['cp', '-av', source, dest])
         _ = p.communicate()[0]
 
 
@@ -77,11 +77,11 @@ def special_copy(source, dest):
 
 
 def git_commit():
-    p1 = sp.Popen(['/usr/bin/git', 'add', '*'], cwd=DOTFILES_REPOSITORY)
+    p1 = sp.Popen(['/usr/bin/git', 'add', '.'], cwd=DOTFILES_REPOSITORY)
     _ = p1.communicate()[0]
 
-    date = dt.now().strftime('%m.%d.%Y %H.%M')
-    commit_name = f'"{date} Automated backup"'
+    date = dt.now().strftime('%d.%m.%Y %H.%M')
+    commit_name = f'"dotman {date}"'
     p2 = sp.Popen(['/usr/bin/git', 'commit', '-m', commit_name], cwd=DOTFILES_REPOSITORY)
     _ = p2.communicate()[0]
 
