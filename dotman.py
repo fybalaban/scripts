@@ -6,6 +6,8 @@ import os.path
 import subprocess as sp
 import sys
 from datetime import datetime as dt
+from termcolor import colored
+from termcolor import cprint
 
 
 DOTFILES_REPOSITORY = '$HOME/repos/dotfiles'
@@ -34,6 +36,10 @@ def remove_from_left_until_slash(text):
         buffer += text[iterator]
         iterator -= 1
     return text.removesuffix(buffer[::-1])
+
+
+def prclr(text, color):
+    cprint(text, color, end='')
 
 
 def grab_dotfiles():
@@ -122,34 +128,39 @@ def main():
     if flag_interactive:
         print(f"dotman {VER} by fyb, 2022")
         if not local_repo_exists:
-            print(f'Important warning: dotfiles repository cannot be located at: {DOTFILES_REPOSITORY}')
+            print(colored('Important warning:', 'red'), 'dotfiles repository cannot be located at: ',
+                  colored(DOTFILES_REPOSITORY, 'yellow'))
             print('Edit DOTFILES_REPOSITORY variable in this script to specify its location')
-            ans = input(f'If you want to use this script to grab dotfiles from {remote_shortname}, type Y. (y/N): ')
+            print(f'To grab dotfiles from', colored(f'"{remote_shortname}"', 'yellow'), end='')
+            ans = input('type Y. (y/N): ')
             if ans.lower() == 'y' or 'yes':
                 grab_successed, exit_code = grab_dotfiles()
                 if grab_successed:
-                    print(f'Successfully grabbed dotfiles from {remote_shortname}')
+                    print(f'Successfully grabbed dotfiles from', colored(f'"{remote_shortname}"', 'yellow'))
                 else:
-                    print(f'git exited with result code: {exit_code}. An error may have occured.')
+                    print(f'git exited with result code:', colored(str(exit_code), 'red'),
+                          '. An error may have occured.')
                     exit(128)
             else:
-                print('There isn\'t anything left for dotman to do. Have a nice day!')
+                cprint('There isn\'t anything left for dotman to do. Have a nice day!', 'green')
                 exit(0)
-        print('dotman is ready for your command. ')
+        print('dotman is', colored('ready', 'green'), 'for your command. ')
         print('You can either backup to remote, or copy local repo to local config (deploy)')
         ans = input('(B)ackup or (D)eploy: ')
         if ans.lower() == 'b' or ans.lower() == 'backup':
-            print(f'Step 1: Copy from local config {LOCAL_CONFIG} to local repo {DOTFILES_REPOSITORY}')
+            print(colored('Step 1: ', 'magenta'), 'Copy from local config', colored("{LOCAL_CONFIG}", 'yellow'),
+                  'to local repo', colored('"DOTFILES_REPOSITORY"', 'yellow'))
             special_copy(LOCAL_CONFIG, DOTFILES_REPOSITORY)
-            print(f'Step 2: Create a commit and push to remote repo {REMOTE_REPOSITORY}')
+            print(colored('Step 2: ', 'magenta'), f'Create a commit and push to remote repo',
+                  colored(f'"{REMOTE_REPOSITORY}"', 'yellow'))
             git_commit()
             push_remote()
-            print('Backup completed. Have a nice day!')
+            cprint('Backup completed. Have a nice day!', 'green')
             exit(0)
         elif ans.lower() == 'd' or ans.lower() == 'deploy':
-            print(f'Step 1: Copy from local repo to local config')
+            print(colored('Step 1:', 'magenta'), ' Copy from local repo to local config')
             special_copy(DOTFILES_REPOSITORY, LOCAL_CONFIG)
-            print('Deploy completed. Have a nice day!')
+            cprint('Deploy completed. Have a nice day!', 'green')
             exit(0)
     elif flag_backup and not flag_deploy:
         if local_repo_exists:
@@ -158,14 +169,14 @@ def main():
             push_remote()
             exit(0)
         else:
-            print('[CRITICAL] Local repository couldn\'t be located. Aborting...')
+            print(colored('[CRITICAL]', 'red'), 'Local repository couldn\'t be located. Aborting...')
             exit(128)
     elif flag_deploy and not flag_backup:
         if local_repo_exists:
             special_copy(DOTFILES_REPOSITORY, LOCAL_CONFIG)
             exit(0)
         else:
-            print('[CRITICAL] Local repository couldn\'t be located. Aborting...')
+            print(colored('[CRITICAL]', 'red'), 'Local repository couldn\'t be located. Aborting...')
             exit(128)
     elif flag_version:
         print(f'dotman version: {VER.removeprefix("v")}')
