@@ -3,7 +3,7 @@
 #       Ferit Yiğit BALABAN <fyb@duck.com>, 2022
 #
 import os.path
-from subprocess import PIPE, run
+from subprocess import run
 import sys
 from datetime import datetime as dt
 from termcolor import colored
@@ -40,9 +40,9 @@ def remove_from_left_until_slash(text):
 
 def proc(command, cwd=''):
     if cwd == '':
-        r = run(command, shell=True, capture_output=True, stdout=PIPE, text=True)
+        r = run(command, shell=True, capture_output=True, text=True)
     else:
-        r = run(command, shell=True, capture_output=True, stdout=PIPE, text=True, cwd=cwd)
+        r = run(command, shell=True, capture_output=True, text=True, cwd=cwd)
     return r.returncode, r.stdout
 
 
