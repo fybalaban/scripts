@@ -3,7 +3,7 @@
 #       Ferit Yiğit BALABAN <fyb@duck.com>, 2022
 #
 import os.path
-import subprocess as sp
+from subprocess import PIPE, run
 import sys
 from datetime import datetime as dt
 from termcolor import colored
@@ -38,21 +38,27 @@ def remove_from_left_until_slash(text):
     return text.removesuffix(buffer[::-1])
 
 
+def proc(command, cwd=''):
+    if cwd == '':
+        r = run(command, shell=True, capture_output=True, stdout=PIPE, text=True)
+    else:
+        r = run(command, shell=True, capture_output=True, stdout=PIPE, text=True, cwd=cwd)
+    return r.returncode, r.stdout
+
+
 def prclr(text, color):
     cprint(text, color, end='')
 
 
 def grab_dotfiles():
     os.mkdir(remove_from_left_until_slash(DOTFILES_REPOSITORY))
-    p = sp.Popen(['git', 'clone https://github.com/fybalaban/dotfiles'], cwd=DOTFILES_REPOSITORY)
-    _ = p.communicate()[0]
-    return p.returncode == 0, p.returncode
+    code, output = proc(f'git clone {REMOTE_REPOSITORY}', DOTFILES_REPOSITORY)
+    return code == 0, code
 
 
 def copy(source, dest, method='subprocess'):
     if method == 'subprocess':
-        p = sp.Popen(['cp', '-av', source, dest])
-        _ = p.communicate()[0]
+        proc(f'cp -av {source} {dest}')
 
 
 def special_copy(source, dest):
@@ -83,19 +89,18 @@ def special_copy(source, dest):
 
 
 def git_commit():
-    p1 = sp.Popen(['/usr/bin/git', 'add', '.'], cwd=DOTFILES_REPOSITORY)
-    _ = p1.communicate()[0]
+    flag_commit = True
+    code, output = proc('/usr/bin/git add .', DOTFILES_REPOSITORY)
+    flag_commit = flag_commit or 'nothing to commit' in output
 
-    date = dt.now().strftime('%d.%m.%Y %H.%M')
-    commit_name = f'"dotman {date}"'
-    p2 = sp.Popen(['/usr/bin/git', 'commit', '-m', commit_name], cwd=DOTFILES_REPOSITORY)
-    _ = p2.communicate()[0]
+    if flag_commit:
+        date = dt.now().strftime('%d.%m.%Y %H.%M')
+        proc(f'/usr/bin/git commit -m "dotman {date}"', DOTFILES_REPOSITORY)
 
 
 def push_remote():
-    p = sp.Popen(['/usr/bin/git', 'push'], cwd=DOTFILES_REPOSITORY)
-    _ = p.communicate()[0]
-    return p.returncode == 0, p.returncode
+    code, output = proc('/usr/bin/git push', DOTFILES_REPOSITORY)
+    return code == 0, code
 
 
 def main():
