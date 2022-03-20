@@ -33,15 +33,16 @@ updates repositories kept in $HOME/sources by calling 'git pull' using subproces
 dependencies:
  - [termcolor](https://pypi.org/project/termcolor)
 
-### launch_polybar.sh
+### launch_polybar
 
-used by i3wm to launch polybar on occasions. ripped it off from arch wiki ;)
+used by i3wm (or me) to launch polybar on occasions. this script first checks for polybar instances, and exits if there is any; however if no instances exist, a new polybar will pop up, *quietly*!
 
 used by:
  - i3wm configuration
  - [source_polybar.py](https://github.com/fybalaban/scripts#source_polybarpy)
 
 dependencies:
+ - [fish](https://github.com/fish-shell/fish-shell) installation
  - [polybar](https://github.com/polybar/polybar)
 
 ### source_polybar.py
@@ -77,7 +78,7 @@ dependencies:
 
 ## dotman.py
 
-dotman is (yet) another DOTfiles MANager that **I've** made for **my** machine. 
+dotman is (yet) another DOTfiles MANager that ***I've*** made for ***my*** machine. 
  - Will it work on yours? Probably.
  - Do you really need it? Probably not.
 
@@ -88,8 +89,9 @@ dotman is (yet) another DOTfiles MANager that **I've** made for **my** machine.
  - [x] Deploy to $HOME/.config
  - [x] Interactive mode
  - [x] Automatable mode 
- - [ ] Verbose output
+ - [x] Verbose output
  - [ ] Logging capability
 
 dependencies:
  - python installation lol
+ - aw hell nah. [termcolor](https://pypi.org/project/termcolor) again

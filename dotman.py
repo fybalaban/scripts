@@ -6,14 +6,13 @@ import os.path
 from subprocess import run
 import sys
 from datetime import datetime as dt
-from termcolor import colored
-from termcolor import cprint
+from termcolor import colored, cprint
 
 
 DOTFILES_REPOSITORY = '$HOME/repos/dotfiles'
 REMOTE_REPOSITORY = 'https://github.com/fybalaban/dotfiles'
 LOCAL_CONFIG = '$HOME/.config'
-VER = 'v1.1'
+VER = 'v1.4'
 help_message = f'''
 dotman {VER} dotfiles manager by fyb
 
@@ -39,11 +38,14 @@ def remove_from_left_until_slash(text):
 
 
 def proc(command, cwd=''):
-    if cwd == '':
-        r = run(command, shell=True, capture_output=True, text=True)
+    if 'cp -av' in command:
+        r = run(command, shell=True)
     else:
-        r = run(command, shell=True, capture_output=True, text=True, cwd=cwd)
-    return r.returncode, r.stdout
+        if cwd == '':
+            r = run(command, shell=True, capture_output=True, text=True)
+        else:
+            r = run(command, shell=True, capture_output=True, text=True, cwd=cwd)
+    return r.returncode, str(r.stdout)
 
 
 def prclr(text, color):
@@ -56,9 +58,8 @@ def grab_dotfiles():
     return code == 0, code
 
 
-def copy(source, dest, method='subprocess'):
-    if method == 'subprocess':
-        proc(f'cp -av {source} {dest}')
+def copy(source, dest):
+    proc(f'cp -av {source} {dest}')
 
 
 def special_copy(source, dest):
@@ -76,16 +77,12 @@ def special_copy(source, dest):
         'rofi'
     ]
     dirs = os.listdir(source)
-    full_dirs = []
+    selected_dirs = []
     for each_name in dirs:
-        if each_name not in whitelist:
-            dirs.remove(each_name)
-        elif source.endswith('/'):
-            full_dirs.append(source + each_name)
-        else:
-            full_dirs.append(source + '/' + each_name)
-    for directory in full_dirs:
-        copy(directory, dest, 'subprocess')
+        if each_name in whitelist:
+            selected_dirs.append(f'{source}{each_name}' if source.endswith('/') else f'{source}/{each_name}')
+    for directory in selected_dirs:
+        copy(directory, dest)
 
 
 def git_commit():
@@ -96,6 +93,7 @@ def git_commit():
     if flag_commit:
         date = dt.now().strftime('%d.%m.%Y %H.%M')
         proc(f'/usr/bin/git commit -m "dotman {date}"', DOTFILES_REPOSITORY)
+    return flag_commit
 
 
 def push_remote():
@@ -153,8 +151,8 @@ def main():
         print('You can either backup to remote, or copy local repo to local config (deploy)')
         ans = input('(B)ackup or (D)eploy: ')
         if ans.lower() == 'b' or ans.lower() == 'backup':
-            print(colored('Step 1: ', 'magenta'), 'Copy from local config', colored("{LOCAL_CONFIG}", 'yellow'),
-                  'to local repo', colored('"DOTFILES_REPOSITORY"', 'yellow'))
+            print(colored('Step 1: ', 'magenta'), 'Copy from local config', colored(f'"{LOCAL_CONFIG}"', 'yellow'),
+                  'to local repo', colored(f'"{DOTFILES_REPOSITORY}"', 'yellow'))
             special_copy(LOCAL_CONFIG, DOTFILES_REPOSITORY)
             print(colored('Step 2: ', 'magenta'), f'Create a commit and push to remote repo',
                   colored(f'"{REMOTE_REPOSITORY}"', 'yellow'))
