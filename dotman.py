@@ -12,7 +12,7 @@ from termcolor import colored, cprint
 DOTFILES_REPOSITORY = '$HOME/repos/dotfiles'
 REMOTE_REPOSITORY = 'https://github.com/fybalaban/dotfiles'
 LOCAL_CONFIG = '$HOME/.config'
-VER = 'v1.4'
+VER = 'v1.5'
 help_message = f'''
 dotman {VER} dotfiles manager by fyb
 
@@ -45,7 +45,7 @@ def proc(command, cwd=''):
             r = run(command, shell=True, capture_output=True, text=True)
         else:
             r = run(command, shell=True, capture_output=True, text=True, cwd=cwd)
-    return r.returncode, str(r.stdout)
+    return r.returncode, str(r.stdout) + str(r.stderr)
 
 
 def prclr(text, color):
@@ -85,20 +85,14 @@ def special_copy(source, dest):
         copy(directory, dest)
 
 
-def git_commit():
-    flag_commit = True
-    code, output = proc('/usr/bin/git add .', DOTFILES_REPOSITORY)
-    flag_commit = flag_commit or 'nothing to commit' in output
-
-    if flag_commit:
-        date = dt.now().strftime('%d.%m.%Y %H.%M')
-        proc(f'/usr/bin/git commit -m "dotman {date}"', DOTFILES_REPOSITORY)
-    return flag_commit
-
-
-def push_remote():
-    code, output = proc('/usr/bin/git push', DOTFILES_REPOSITORY)
-    return code == 0, code
+def commit_then_push():
+    _, _ = proc('/usr/bin/git add .', DOTFILES_REPOSITORY)
+    date = dt.now().strftime('%d.%m.%Y %H.%M')
+    code, output = proc(f'/usr/bin/git commit -m "dotman {date}"', DOTFILES_REPOSITORY)
+    if 'nothing to commit' not in output:
+        code, output = proc('/usr/bin/git push', DOTFILES_REPOSITORY)
+        return 0 if code == 0 else 2
+    return 1
 
 
 def main():
@@ -156,10 +150,14 @@ def main():
             special_copy(LOCAL_CONFIG, DOTFILES_REPOSITORY)
             print(colored('Step 2: ', 'magenta'), f'Create a commit and push to remote repo',
                   colored(f'"{REMOTE_REPOSITORY}"', 'yellow'))
-            git_commit()
-            push_remote()
-            cprint('Backup completed. Have a nice day!', 'green')
-            exit(0)
+            stat = commit_then_push()
+            if stat == 0:
+                cprint('Backup completed. Have a nice day!', 'green')
+            elif stat == 1:
+                cprint('There was nothing to commit, aborting.', 'red')
+            elif stat == 2:
+                cprint('Couldn\'t push local to remote, aborting.', 'red')
+            exit(stat)
         elif ans.lower() == 'd' or ans.lower() == 'deploy':
             print(colored('Step 1:', 'magenta'), ' Copy from local repo to local config')
             special_copy(DOTFILES_REPOSITORY, LOCAL_CONFIG)
@@ -168,9 +166,7 @@ def main():
     elif flag_backup and not flag_deploy:
         if local_repo_exists:
             special_copy(LOCAL_CONFIG, DOTFILES_REPOSITORY)
-            git_commit()
-            push_remote()
-            exit(0)
+            exit(commit_then_push())
         else:
             print(colored('[CRITICAL]', 'red'), 'Local repository couldn\'t be located. Aborting...')
             exit(128)
