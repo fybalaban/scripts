@@ -1,0 +1,2 @@
+#!/usr/bin/env fish
+ps -C polybar >/dev/null && : || polybar --quiet --reload &; disown
