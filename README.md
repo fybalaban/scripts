@@ -95,3 +95,7 @@ dotman is (yet) another DOTfiles MANager that ***I've*** made for ***my*** machi
 dependencies:
  - python installation lol
  - aw hell nah. [termcolor](https://pypi.org/project/termcolor) again
+
+## drun_cleaner.py
+
+drun_cleaner is a necessary tool to make selected desktop entries hidden. it uses a hardcoded list to get which files you want to be hidden, then searchs for those files in certain locations like "/usr/share/applications" and "$HOME/.local/share/applications". a file, when found, will get appended with 'NoDisplay=true' which removes that entry from run, drun, or any app launcher's menu.
