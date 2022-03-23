@@ -113,14 +113,14 @@ def main():
     interval = 2
     format-prefix = "RAM "
     format-prefix-foreground = ${{colors.primary}}
-    label = %percentage_used:2%%
+    label = %percentage_used%%
     
     [module/cpu]
     type = internal/cpu
     interval = 2
     format-prefix = "CPU "
     format-prefix-foreground = ${{colors.primary}}
-    label = %percentage:2%%
+    label = %percentage%%
     
     [module/temp]
     type = internal/temperature
