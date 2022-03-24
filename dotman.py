@@ -10,7 +10,7 @@ from termcolor import colored, cprint
 
 
 DOTFILES_REPOSITORY = '$HOME/repos/dotfiles'
-REMOTE_REPOSITORY = 'https://github.com/fybalaban/dotfiles'
+REMOTE_REPOSITORY = 'https://github.com/fybx/dotfiles'
 LOCAL_CONFIG = '$HOME/.config'
 VER = 'v1.5'
 help_message = f'''
@@ -86,9 +86,12 @@ def special_copy(source, dest):
 
 
 def commit_then_push():
-    _, _ = proc('/usr/bin/git add .', DOTFILES_REPOSITORY)
+    # I forget checking out to main after testing on a seperate branch
+    # Line below checks out for me every time it's run
+    proc('/usr/bin/git checkout main', DOTFILES_REPOSITORY)
+    proc('/usr/bin/git add .', DOTFILES_REPOSITORY)
     date = dt.now().strftime('%d.%m.%Y %H.%M')
-    code, output = proc(f'/usr/bin/git commit -m "dotman {date}"', DOTFILES_REPOSITORY)
+    _, output = proc(f'/usr/bin/git commit -m "dotman {date}"', DOTFILES_REPOSITORY)
     if 'nothing to commit' not in output:
         code, output = proc('/usr/bin/git push', DOTFILES_REPOSITORY)
         return 0 if code == 0 else 2
