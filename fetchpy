@@ -4,6 +4,7 @@
 #
 #       fetchpy, fetch script alternative to neofetch
 import os
+import sys
 import subprocess as sp
 from termcolor import cprint
 
@@ -103,6 +104,13 @@ def read_until_space(text, start_at):
 
 
 def main():
+    sys.argv.reverse()
+    sys.argv.pop()
+    if len(sys.argv) != 0:
+        arg = sys.argv.pop()
+        if arg == '-c' or arg == '--color':
+            color_test()
+
     padding_count = 29
 
     distro_name = 'Arch GNU/Linux x86_64'
