@@ -7,6 +7,9 @@ import os
 import sys
 import subprocess as sp
 from termcolor import cprint
+from rich.console import Console
+from rich.traceback import install
+install(show_locals=True)
 
 
 def color_test():
@@ -21,7 +24,11 @@ def color_test():
 
 
 def coloring(text):
-    ascii_art = 'cyan'
+    red = '#FF0018'
+    orange = '#FFA52C'
+    yellow = '#FFFF41'
+    green = '#008018'
+    blue = '#0000F9'
     frame = 'red'
     info = 'yellow'
     title = 'yellow'
@@ -46,28 +53,29 @@ def coloring(text):
         'UPT': info,
         'ferit@navi': title,
         'Hardware': title,
-        '-@\n': ascii_art,
-        '.##@': ascii_art,
-        '.####@': ascii_art,
-        '@#####@': ascii_art,
-        '.**######@': ascii_art,
-        '.##@o@#####@': ascii_art,
-        '/############@': ascii_art,
-        '/##############@': ascii_art,
-        '@######@**%######@': ascii_art,
-        '@######`': ascii_art,
-        '%#####o': ascii_art,
-        '@######@': ascii_art,
-        '######%': ascii_art,
-        '-@#######h': ascii_art,
-        '######@.`': ascii_art,
-        '/#####h**``': ascii_art,
-        '`**%@####@': ascii_art,
-        '@H@*`': ascii_art,
-        '*`': ascii_art,
-        '`*%#@': ascii_art,
-        '`*': ascii_art,
+        '-@\n': red,
+        '.##@': red,
+        '.####@': red,
+        '@#####@': orange,
+        '.**######@': orange,
+        '.##@o@#####@': orange,
+        '.############@': yellow,
+        '.##############@': yellow,
+        '@######@**%######@': yellow,
+        '@######`': green,
+        '%#####o': green,
+        '@######@': green,
+        '######%': green,
+        '-@#######h': green,
+        '######@.`': green,
+        '.#####h**``': blue,
+        '`**%@####@': blue,
+        '@H@*`': blue,
+        '*`': blue,
+        '`*%#@': blue,
+        '`*': blue,
     }
+    c = Console()
     iterator = 0
     while iterator < len(text):
         character = text[iterator]
@@ -80,13 +88,13 @@ def coloring(text):
                 print(' ', end='')
                 word, jump_to = read_until_space(text, start_at=iterator + 1)
                 if color_dictionary.__contains__(word):
-                    cprint(word, color_dictionary[word], end='')
+                    c.print(word, style=color_dictionary[word], end='')
                 else:
                     print(word, end='')
                 iterator = jump_to
             print(' ', end='')
         elif color_dictionary.__contains__(character):
-            cprint(character, color_dictionary[character], end='')
+            c.print(character, style=color_dictionary[character], end='')
         else:
             print(character, end='')
         iterator += 1
@@ -173,13 +181,13 @@ def main():
               @#####@              │ KERN  {kernel_version}│
             .**######@             │ SHEL  {shell_name}│
            .##@o@#####@            │ TERM  {terminal_name}│
-          /############@           │ PACK  {package_count}│
-         /##############@          ├───────────── Hardware ─────────────┤
+          .############@           │ PACK  {package_count}│
+         .##############@          ├───────────── Hardware ─────────────┤
         @######@**%######@         │ CPU   AMD Ryzen 7 5800H (16 Cores) │
        @######`     %#####o        │ iGPU  AMD Radeon™ Graphics (2 GHz) │
       @######@       ######%       │ dGPU  NVIDIA GeForce RTX 3050 Ti   │
     -@#######h       ######@.`     │ MEM   {memory_usage}│
-   /#####h**``       `**%@####@    │ UPT   {uptime}│
+   .#####h**``       `**%@####@    │ UPT   {uptime}│
   @H@*`                    `*%#@   ╰────────────────────────────────────╯
  *`                            `* 
 '''
