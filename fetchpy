@@ -80,8 +80,7 @@ def coloring(text):
     while iterator < len(text):
         character = text[iterator]
         peekable = iterator < len(text) - 1
-        if peekable:
-            peek = text[iterator + 1]
+        peek = text[iterator + 1] if peekable else ' '
 
         if character == ' ':
             if peekable and peek != ' ' and not color_dictionary.__contains__(peek):
@@ -161,19 +160,6 @@ def main():
         uptime = f'{number} hour' if number == '1' else f'{number} hours'
     uptime = uptime.ljust(padding_count, ' ')
 
-    temp_txt = f'''╭──────────── ferit@navi ────────────╮
-│ DIST  {distro_name}│
-│ KERN  {kernel_version}│
-│ SHEL  {shell_name}│
-│ TERM  {terminal_name}│
-│ PACK  {package_count}│
-├───────────── Hardware ─────────────┤
-│ CPU   AMD Ryzen 7 5800H (16 Cores) │
-│ iGPU  AMD Radeon™ Graphics (2 GHz) │
-│ dGPU  NVIDIA GeForce RTX 3050 Ti   │
-│ MEM   {memory_usage}│
-│ UPT   {uptime}│
-╰────────────────────────────────────╯'''
     txt = f'''
                 -@
                .##@                ╭──────────── ferit@navi ────────────╮
