@@ -2,6 +2,24 @@
 
 This repository contains Python and shell scripts that I actively develop and utilize on my GNU/Linux [(or as I've recently taken to calling it, GNU plus Linux)](https://balaban.software/tribute.html) machine.
 
+|          | Shell Scripts                                                               | Python Scripts                                                                                                                           |
+|----------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| Obsolete | [launch_searx][searx], <br/>[pi & piw][pipiw], <br/>[launch_compton.sh][lc] | [update_repos.py][updrp],                                                                                                                |
+| Active   | [volumeup.sh][vup], <br/>[launch_picom.sh][lp], <br/>[launch_polybar][lp]   | <br/>[source_polybar.py][sp], <br/>[compare.py][compy], <br/>[drun_cleaner.py][drunc], <br/>[dotman.py][dotman], <br/>[fetchpy][fetchpy] |
+
+[searx]: https://github.com/fybx/scripts#launch_searxsh
+[pipiw]: https://github.com/fybx/scripts#pi--piw
+[vup]: https://github.com/fybx/scripts#volumeupsh
+[updrp]: https://github.com/fybx/scripts#update_repospy
+[lp]: https://github.com/fybx/scripts#launch_polybar
+[sp]: https://github.com/fybx/scripts#source_polybar
+[lc]: https://github.com/fybx/scripts#launch_comptonsh
+[lp]: https://github.com/fybx/scripts#launch_picomsh
+[fetchpy]: https://github.com/fybx/scripts#fetchpy
+[dotman]: https://github.com/fybx/scripts#dotmanpy
+[drunc]: https://github.com/fybx/scripts#drun_cleanerpy
+[compy]: https://github.com/fybx/scripts#comparepy
+
 ### launch_searx.sh
 
 starts a docker container for searx. use a cron job to execute this script on reboot.
@@ -24,7 +42,7 @@ used by:
 
 dependencies:
  - pactl
- - pulseaudio (?)
+ - pulseaudio
 
 ### update_repos.py
 
@@ -55,7 +73,7 @@ dependencies:
 
 ### launch_compton.sh
 
-restarting i3 using $mod+shift+r causes multiple instances of compton to be created :) i noticed that when the CPU temperature hit 85 degrees :) never doing that again :)
+restarting i3 using $mod+shift+r causes multiple instances of compton to be created :) I noticed that when the CPU temperature hit 85 degrees :) never doing that again :)
 
 dependencies:
  - [compton](https://github.com/chjj/compton)
@@ -73,8 +91,10 @@ fetchpy is an alternative to neofetch. I was tinkering around with my neofetch c
 
 This took me approximately ~6 hours to complete, and I'm proud of it! (I drank too much mineral soda with extra citric acid, acid reflux is really getting wild lol)
 
+Switched to rich from termcolor: fetchpy now features a damn crazy color palette and pride flags on Arch logo!
+
 dependencies:
- - [termcolor](https://pypi.org/project/termcolor)
+ - [rich](https://github.com/Textualize/rich)
 
 ## dotman.py
 
@@ -94,8 +114,12 @@ dotman is (yet) another DOTfiles MANager that ***I've*** made for ***my*** machi
 
 dependencies:
  - python installation lol
- - aw hell nah. [termcolor](https://pypi.org/project/termcolor) again
+ - aw, hell nah. [termcolor](https://pypi.org/project/termcolor) again
 
 ## drun_cleaner.py
 
 drun_cleaner is a necessary tool to make selected desktop entries hidden. it uses a hardcoded list to get which files you want to be hidden, then searchs for those files in certain locations like "/usr/share/applications" and "$HOME/.local/share/applications". a file, when found, will get appended with 'NoDisplay=true' which removes that entry from run, drun, or any app launcher's menu.
+
+## compare.py
+
+this tiny script reads two csv files to two lists, then compares the lists. what's so special about it? it takes phantombuster's Instagram follower and followee lists as inputs. :D.
