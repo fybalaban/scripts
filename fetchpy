@@ -4,23 +4,21 @@
 #
 #       fetchpy, fetch script alternative to neofetch
 import os
-import sys
 import subprocess as sp
-from termcolor import cprint
 from rich.console import Console
 from rich.traceback import install
 install(show_locals=True)
 
 
 def coloring(text):
-    red = '#FF0018'
-    orange = '#FFA52C'
-    yellow = '#FFFF41'
-    green = '#008018'
-    blue = '#0000F9'
-    frame = 'red'
-    info = 'yellow'
-    title = 'yellow'
+    color1 = '#' + '785BAF'
+    color2 = '#' + 'DF73AA'
+    color3 = '#' + 'B6D871'
+    color4 = '#' + 'F1E7C2'
+    color5 = '#' + '77B2CC'
+    frame = color2
+    info = color3
+    title = color5
     color_dictionary = {
         '╭': frame,
         '╰': frame,
@@ -42,27 +40,27 @@ def coloring(text):
         'UPT': info,
         'ferit@navi': title,
         'Hardware': title,
-        '-@\n': red,
-        '.##@': red,
-        '.####@': red,
-        '@#####@': orange,
-        '.**######@': orange,
-        '.##@o@#####@': orange,
-        '.############@': yellow,
-        '.##############@': yellow,
-        '@######@**%######@': yellow,
-        '@######`': green,
-        '%#####o': green,
-        '@######@': green,
-        '######%': green,
-        '-@#######h': green,
-        '######@.`': green,
-        '.#####h**``': blue,
-        '`**%@####@': blue,
-        '@H@*`': blue,
-        '*`': blue,
-        '`*%#@': blue,
-        '`*': blue,
+        '-@\n': color1,
+        '.##@': color1,
+        '.####@': color1,
+        '@#####@': color2,
+        '.**######@': color2,
+        '.##@o@#####@': color2,
+        '.############@': color3,
+        '.##############@': color3,
+        '@######@**%######@': color3,
+        '@######`': color4,
+        '%#####o': color4,
+        '@######@': color4,
+        '######%': color4,
+        '-@#######h': color4,
+        '######@.`': color4,
+        '.#####h**``': color5,
+        '`**%@####@': color5,
+        '@H@*`': color5,
+        '*`': color5,
+        '`*%#@': color5,
+        '`*': color5,
     }
     c = Console()
     iterator = 0
