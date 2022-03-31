@@ -12,17 +12,6 @@ from rich.traceback import install
 install(show_locals=True)
 
 
-def color_test():
-    cprint('grey', 'grey')
-    cprint('blue', 'blue')
-    cprint('green', 'green')
-    cprint('red', 'red')
-    cprint('cyan', 'cyan')
-    cprint('magenta', 'magenta')
-    cprint('yellow', 'yellow')
-    cprint('white', 'white')
-
-
 def coloring(text):
     red = '#FF0018'
     orange = '#FFA52C'
@@ -111,13 +100,6 @@ def read_until_space(text, start_at):
 
 
 def main():
-    sys.argv.reverse()
-    sys.argv.pop()
-    if len(sys.argv) != 0:
-        arg = sys.argv.pop()
-        if arg == '-c' or arg == '--color':
-            color_test()
-
     padding_count = 29
 
     distro_name = 'Arch GNU/Linux x86_64'
