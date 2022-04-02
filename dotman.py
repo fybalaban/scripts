@@ -8,7 +8,6 @@ import sys
 from datetime import datetime as dt
 from termcolor import colored, cprint
 
-
 # Modify SETTINGS dictionary to set runtime variables
 # Access values in dictionary using pre-defined names
 SETTINGS = {
@@ -17,11 +16,9 @@ SETTINGS = {
     'LOCAL_CONFIG': '$HOME/.config',
     'SETUP_FILE': 'same-directory'
 }
-DOTFILES_REPOSITORY = SETTINGS['DOTFILES_REPOSITORY']
-REMOTE_REPOSITORY = SETTINGS['REMOTE_REPOSITORY']
-LOCAL_CONFIG = SETTINGS['LOCAL_CONFIG']
-SETUP_FILE = SETTINGS['SETUP_FILE']
+WHEREAMI = '$HOME/scripts'
 VER = 'v1.7'
+WER = 'v1'
 help_message = f'''
 dotman {VER} dotfiles manager by fyb
 
@@ -38,6 +35,14 @@ Keys:
 '''
 
 
+def get_nth_key(n: int, d: dict[str, str]):
+    c = 0
+    for k in d.keys():
+        if n == c:
+            return k
+        c += 1
+
+
 def read_file(path: str):
     with open(path, 'r') as f:
         content = f.readlines()
@@ -46,7 +51,8 @@ def read_file(path: str):
 
 
 def read_setup():
-    lines = read_file('setup.dtm') if SETUP_FILE == 'same-directory' else read_file(os.path.expandvars(SETUP_FILE))
+    path = SETTINGS['SETUP_FILE']
+    lines = read_file(f'{WHEREAMI}setup.dtm') if path == 'same-directory' else read_file(os.path.expandvars(path))
     lines = [line.strip() for line in lines if not line.startswith('#') and line.replace(' ', '') != '']
     for line in lines:
         key = line.split(':', 1)[0].rstrip()
@@ -74,13 +80,20 @@ def proc(command, cwd=''):
     return r.returncode, str(r.stdout) + str(r.stderr)
 
 
+def print_settings():
+    count = 1
+    for key, value in SETTINGS.items():
+        print(f'{count}. {key}:{value}')
+        count += 1
+
+
 def prclr(text, color):
     cprint(text, color, end='')
 
 
 def grab_dotfiles():
-    os.mkdir(remove_from_left_until_slash(DOTFILES_REPOSITORY))
-    code, output = proc(f'git clone {REMOTE_REPOSITORY}', DOTFILES_REPOSITORY)
+    os.mkdir(remove_from_left_until_slash(SETTINGS['DOTFILES_REPOSITORY']))
+    code, output = proc(f"git clone {SETTINGS['REMOTE_REPOSITORY']}", SETTINGS['DOTFILES_REPOSITORY'])
     return code == 0, code
 
 
@@ -114,16 +127,16 @@ def special_copy(source, dest):
 def commit_then_push():
     # I forget checking out to main after testing on a seperate branch
     # Line below checks out for me every time it's run
-    proc('/usr/bin/git checkout main', DOTFILES_REPOSITORY)
-    proc('/usr/bin/git fetch', DOTFILES_REPOSITORY)
-    proc('/usr/bin/git pull', DOTFILES_REPOSITORY)
-    proc('/usr/bin/git add .', DOTFILES_REPOSITORY)
+    proc('/usr/bin/git checkout main', SETTINGS['DOTFILES_REPOSITORY'])
+    proc('/usr/bin/git fetch', SETTINGS['DOTFILES_REPOSITORY'])
+    proc('/usr/bin/git pull', SETTINGS['DOTFILES_REPOSITORY'])
+    proc('/usr/bin/git add .', SETTINGS['DOTFILES_REPOSITORY'])
     date = dt.now().strftime('%d.%m.%Y %H.%M')
-    _, output = proc(f'/usr/bin/git commit -m "dotman {date}"', DOTFILES_REPOSITORY)
+    _, output = proc(f'/usr/bin/git commit -m "dotman {date}"', SETTINGS['DOTFILES_REPOSITORY'])
     if 'nothing to commit' not in output:
-        code, output = proc('/usr/bin/git push', DOTFILES_REPOSITORY)
+        code, output = proc('/usr/bin/git push', SETTINGS['DOTFILES_REPOSITORY'])
         if code == 0:
-            _, output = proc('/usr/bin/git log', DOTFILES_REPOSITORY)
+            _, output = proc('/usr/bin/git log', SETTINGS['DOTFILES_REPOSITORY'])
             commit = output.split('\n')[0].replace('commit ', '')
             return 3, commit
         return 0, None if code == 0 else 2, None
@@ -131,18 +144,19 @@ def commit_then_push():
 
 
 def main():
-    global DOTFILES_REPOSITORY
-    global LOCAL_CONFIG
+    global WHEREAMI
+    WHEREAMI = remove_from_left_until_slash(sys.argv[0])
     read_setup()
-    SETTINGS['DOTFILES_REPOSITORY'] = os.path.expandvars(DOTFILES_REPOSITORY)
-    SETTINGS['LOCAL_CONFIG'] = os.path.expandvars(LOCAL_CONFIG)
-    remote_shortname = REMOTE_REPOSITORY.removeprefix("https://github.com/")
+    SETTINGS['DOTFILES_REPOSITORY'] = os.path.expandvars(SETTINGS['DOTFILES_REPOSITORY'])
+    SETTINGS['LOCAL_CONFIG'] = os.path.expandvars(SETTINGS['LOCAL_CONFIG'])
+    remote_shortname = SETTINGS['REMOTE_REPOSITORY'].removeprefix("https://github.com/")
 
-    local_repo_exists = os.path.exists(DOTFILES_REPOSITORY)
+    local_repo_exists = os.path.exists(SETTINGS['DOTFILES_REPOSITORY'])
 
     flag_interactive = False
     flag_backup = False
     flag_deploy = False
+    flag_setup = False
     flag_version = False
     flag_help = False
     sys.argv.remove(sys.argv[0])
@@ -153,6 +167,7 @@ def main():
             flag_interactive = flag_interactive or key == '-i' or key == '--interactive'
             flag_backup = flag_backup or key == '-b' or key == '--backup'
             flag_deploy = flag_deploy or key == '-d' or key == '--deploy'
+            flag_setup = flag_setup or key == '-s' or key == '--setup-dotman'
             flag_version = flag_version or key == '-v' or key == '--version'
             flag_help = flag_help or key == '-h' or key == '--help'
     else:
@@ -162,7 +177,7 @@ def main():
         print(f"dotman {VER} by fyb, 2022")
         if not local_repo_exists:
             print(colored('Important warning:', 'red'), 'dotfiles repository cannot be located at: ',
-                  colored(DOTFILES_REPOSITORY, 'yellow'))
+                  colored(SETTINGS['DOTFILES_REPOSITORY'], 'yellow'))
             print('Edit DOTFILES_REPOSITORY variable in this script to specify its location')
             print(f'To grab dotfiles from', colored(f'"{remote_shortname}"', 'yellow'), end='')
             ans = input('type Y. (y/N): ')
@@ -181,11 +196,11 @@ def main():
         print('You can either backup to remote, or copy local repo to local config (deploy)')
         ans = input('(B)ackup or (D)eploy: ')
         if ans.lower() == 'b' or ans.lower() == 'backup':
-            print(colored('Step 1: ', 'magenta'), 'Copy from local config', colored(f'"{LOCAL_CONFIG}"', 'yellow'),
-                  'to local repo', colored(f'"{DOTFILES_REPOSITORY}"', 'yellow'))
-            special_copy(LOCAL_CONFIG, DOTFILES_REPOSITORY)
+            print(colored('Step 1: ', 'magenta'), 'Copy from local config', colored(f"\"{SETTINGS['LOCAL_CONFIG']}\"", 'yellow'),
+                  'to local repo', colored(f"\"{SETTINGS['DOTFILES_REPOSITORY']}\"", 'yellow'))
+            special_copy(SETTINGS['LOCAL_CONFIG'], SETTINGS['DOTFILES_REPOSITORY'])
             print(colored('Step 2: ', 'magenta'), f'Create a commit and push to remote repo',
-                  colored(f'"{REMOTE_REPOSITORY}"', 'yellow'))
+                  colored(f"\"{SETTINGS['REMOTE_REPOSITORY']}\"", 'yellow'))
             stat, _ = commit_then_push()
             if stat == 0:
                 cprint('Backup completed. Have a nice day!', 'green')
@@ -194,28 +209,42 @@ def main():
             elif stat == 2:
                 cprint('Couldn\'t push local to remote, aborting.', 'red')
             elif stat == 3:
-                url = f'{REMOTE_REPOSITORY}/commit/{_}'
+                url = f"{SETTINGS['REMOTE_REPOSITORY']}/commit/{_}"
                 cprint(f'Backup completed: {url}. Have a nice day!', 'green')
             exit(stat)
         elif ans.lower() == 'd' or ans.lower() == 'deploy':
             print(colored('Step 1:', 'magenta'), ' Copy from local repo to local config')
-            special_copy(DOTFILES_REPOSITORY, LOCAL_CONFIG)
+            special_copy(SETTINGS['DOTFILES_REPOSITORY'], SETTINGS['LOCAL_CONFIG'])
             cprint('Deploy completed. Have a nice day!', 'green')
             exit(0)
     elif flag_backup and not flag_deploy:
         if local_repo_exists:
-            special_copy(LOCAL_CONFIG, DOTFILES_REPOSITORY)
+            special_copy(SETTINGS['LOCAL_CONFIG'], SETTINGS['DOTFILES_REPOSITORY'])
             exit(commit_then_push())
         else:
             print(colored('[CRITICAL]', 'red'), 'Local repository couldn\'t be located. Aborting...')
             exit(128)
     elif flag_deploy and not flag_backup:
         if local_repo_exists:
-            special_copy(DOTFILES_REPOSITORY, LOCAL_CONFIG)
+            special_copy(SETTINGS['DOTFILES_REPOSITORY'], SETTINGS['LOCAL_CONFIG'])
             exit(0)
         else:
             print(colored('[CRITICAL]', 'red'), 'Local repository couldn\'t be located. Aborting...')
             exit(128)
+    elif flag_setup:
+        print(f'dotman interactive setup wizard {WER}')
+        print_settings()
+        ans = input('Edit settings (y/N): ')
+        if ans.lower() == 'y' or ans.lower() == 'yes':
+            print('Type in number of setting you wish to modify, and "e" or "exit" when done')
+            while True:
+                num = input('Input: ')
+                if num.lower() == 'exit' or num.lower() == 'e':
+                    break
+                elif num.isnumeric() and 1 <= int(num) <= len(SETTINGS):
+                    key = get_nth_key(int(num) - 1, SETTINGS)
+                    SETTINGS[key] = input(f'Enter new value for {key}: ').strip()
+
     elif flag_version:
         print(f'dotman version: {VER.removeprefix("v")}')
         exit(0)
