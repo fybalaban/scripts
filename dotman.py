@@ -9,9 +9,16 @@ from datetime import datetime as dt
 from termcolor import colored, cprint
 
 
-DOTFILES_REPOSITORY = '$HOME/repos/dotfiles'
-REMOTE_REPOSITORY = 'https://github.com/fybx/dotfiles'
-LOCAL_CONFIG = '$HOME/.config'
+# Modify SETTINGS dictionary to set runtime variables
+# Access values in dictionary using pre-defined names
+SETTINGS = {
+    'DOTFILES_REPOSITORY': '$HOME/repos/dotfiles',
+    'REMOTE_REPOSITORY': 'https://github.com/fybx/dotfiles',
+    'LOCAL_CONFIG': '$HOME/.config'
+}
+DOTFILES_REPOSITORY = SETTINGS['DOTFILES_REPOSITORY']
+REMOTE_REPOSITORY = SETTINGS['REMOTE_REPOSITORY']
+LOCAL_CONFIG = SETTINGS['LOCAL_CONFIG']
 VER = 'v1.6'
 help_message = f'''
 dotman {VER} dotfiles manager by fyb
