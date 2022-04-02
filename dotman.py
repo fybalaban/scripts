@@ -12,7 +12,7 @@ from termcolor import colored, cprint
 DOTFILES_REPOSITORY = '$HOME/repos/dotfiles'
 REMOTE_REPOSITORY = 'https://github.com/fybx/dotfiles'
 LOCAL_CONFIG = '$HOME/.config'
-VER = 'v1.5'
+VER = 'v1.6'
 help_message = f'''
 dotman {VER} dotfiles manager by fyb
 
@@ -89,13 +89,19 @@ def commit_then_push():
     # I forget checking out to main after testing on a seperate branch
     # Line below checks out for me every time it's run
     proc('/usr/bin/git checkout main', DOTFILES_REPOSITORY)
+    proc('/usr/bin/git fetch', DOTFILES_REPOSITORY)
+    proc('/usr/bin/git pull', DOTFILES_REPOSITORY)
     proc('/usr/bin/git add .', DOTFILES_REPOSITORY)
     date = dt.now().strftime('%d.%m.%Y %H.%M')
     _, output = proc(f'/usr/bin/git commit -m "dotman {date}"', DOTFILES_REPOSITORY)
     if 'nothing to commit' not in output:
         code, output = proc('/usr/bin/git push', DOTFILES_REPOSITORY)
-        return 0 if code == 0 else 2
-    return 1
+        if code == 0:
+            _, output = proc('/usr/bin/git log', DOTFILES_REPOSITORY)
+            commit = output.split('\n')[0].replace('commit ', '')
+            return 3, commit
+        return 0, None if code == 0 else 2, None
+    return 1, None
 
 
 def main():
@@ -153,13 +159,16 @@ def main():
             special_copy(LOCAL_CONFIG, DOTFILES_REPOSITORY)
             print(colored('Step 2: ', 'magenta'), f'Create a commit and push to remote repo',
                   colored(f'"{REMOTE_REPOSITORY}"', 'yellow'))
-            stat = commit_then_push()
+            stat, _ = commit_then_push()
             if stat == 0:
                 cprint('Backup completed. Have a nice day!', 'green')
             elif stat == 1:
                 cprint('There was nothing to commit, aborting.', 'red')
             elif stat == 2:
                 cprint('Couldn\'t push local to remote, aborting.', 'red')
+            elif stat == 3:
+                url = f'{REMOTE_REPOSITORY}/commit/{_}'
+                cprint(f'Backup completed: {url}. Have a nice day!', 'green')
             exit(stat)
         elif ans.lower() == 'd' or ans.lower() == 'deploy':
             print(colored('Step 1:', 'magenta'), ' Copy from local repo to local config')
