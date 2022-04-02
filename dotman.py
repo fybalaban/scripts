@@ -60,10 +60,16 @@ def read_setup():
         SETTINGS[key] = value
 
 
-def remove_from_left_until_slash(text):
+def rrem(text: str, char: str):
+    """
+    Remove characters from right until character supplied with char
+    :param text: Where to remove characters from
+    :param char: Which character to stop removing at
+    :return: Returns text with all characters until specified character removed
+    """
     iterator = len(text) - 1
     buffer = ''
-    while text[iterator] != '/':
+    while text[iterator] != char:
         buffer += text[iterator]
         iterator -= 1
     return text.removesuffix(buffer[::-1])
@@ -87,12 +93,8 @@ def print_settings():
         count += 1
 
 
-def prclr(text, color):
-    cprint(text, color, end='')
-
-
 def grab_dotfiles():
-    os.mkdir(remove_from_left_until_slash(SETTINGS['DOTFILES_REPOSITORY']))
+    os.mkdir(rrem(SETTINGS['DOTFILES_REPOSITORY'], '/'))
     code, output = proc(f"git clone {SETTINGS['REMOTE_REPOSITORY']}", SETTINGS['DOTFILES_REPOSITORY'])
     return code == 0, code
 
@@ -145,7 +147,7 @@ def commit_then_push():
 
 def main():
     global WHEREAMI
-    WHEREAMI = remove_from_left_until_slash(sys.argv[0])
+    WHEREAMI = rrem(sys.argv[0], '/')
     read_setup()
     SETTINGS['DOTFILES_REPOSITORY'] = os.path.expandvars(SETTINGS['DOTFILES_REPOSITORY'])
     SETTINGS['LOCAL_CONFIG'] = os.path.expandvars(SETTINGS['LOCAL_CONFIG'])
