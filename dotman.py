@@ -14,12 +14,14 @@ from termcolor import colored, cprint
 SETTINGS = {
     'DOTFILES_REPOSITORY': '$HOME/repos/dotfiles',
     'REMOTE_REPOSITORY': 'https://github.com/fybx/dotfiles',
-    'LOCAL_CONFIG': '$HOME/.config'
+    'LOCAL_CONFIG': '$HOME/.config',
+    'SETUP_FILE': 'same-directory'
 }
 DOTFILES_REPOSITORY = SETTINGS['DOTFILES_REPOSITORY']
 REMOTE_REPOSITORY = SETTINGS['REMOTE_REPOSITORY']
 LOCAL_CONFIG = SETTINGS['LOCAL_CONFIG']
-VER = 'v1.6'
+SETUP_FILE = SETTINGS['SETUP_FILE']
+VER = 'v1.7'
 help_message = f'''
 dotman {VER} dotfiles manager by fyb
 
@@ -28,11 +30,28 @@ this have the same effect as calling dotman without any key.
  
 Keys:
 -i, --interactive       Interactively backup or deploy dotfiles. Not supplying any key will result in interactive mode.
+-s, --setup-dotman      Interactively set variables (DOTFILES_REPOSITORY, LOCAL_CONFIG, etc.) for your dotman setup.
 -b, --backup            Backup your dotfiles. Doesn't require user assistance but errors may occur.
 -d, --deploy            Deploy your dotfiles. Doesn't require user assistance but errors may occur.
 -v, --version           Shows the version and quits
 -h, --help              Shows this message and quits
 '''
+
+
+def read_file(path: str):
+    with open(path, 'r') as f:
+        content = f.readlines()
+        f.close()
+    return content
+
+
+def read_setup():
+    lines = read_file('setup.dtm') if SETUP_FILE == 'same-directory' else read_file(os.path.expandvars(SETUP_FILE))
+    lines = [line.strip() for line in lines if not line.startswith('#') and line.replace(' ', '') != '']
+    for line in lines:
+        key = line.split(':', 1)[0].rstrip()
+        value = line.split(':', 1)[1].lstrip()
+        SETTINGS[key] = value
 
 
 def remove_from_left_until_slash(text):
@@ -114,8 +133,9 @@ def commit_then_push():
 def main():
     global DOTFILES_REPOSITORY
     global LOCAL_CONFIG
-    DOTFILES_REPOSITORY = os.path.expandvars(DOTFILES_REPOSITORY)
-    LOCAL_CONFIG = os.path.expandvars(LOCAL_CONFIG)
+    read_setup()
+    SETTINGS['DOTFILES_REPOSITORY'] = os.path.expandvars(DOTFILES_REPOSITORY)
+    SETTINGS['LOCAL_CONFIG'] = os.path.expandvars(LOCAL_CONFIG)
     remote_shortname = REMOTE_REPOSITORY.removeprefix("https://github.com/")
 
     local_repo_exists = os.path.exists(DOTFILES_REPOSITORY)
