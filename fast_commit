@@ -1,0 +1,10 @@
+#!/bin/bash
+cd $HOME/notes
+git add .
+git add .gitignore
+git add *
+git status
+dt=$(date +"%d/%m/%y-%H.%M.%S")
+git commit -m "Auto $dt"
+git push
+exit 0
