@@ -4,7 +4,7 @@
 #
 
 # Step 1: Screen brightness back at %50
-brightnessctl --device amdgpu_bl0 set 50%
+brightnessctl set 50%
 
 # Step 2: Set keyboard backlight to %33
 brightnessctl --device asus::kbd_backlight set 33%

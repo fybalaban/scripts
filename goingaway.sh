@@ -4,7 +4,7 @@
 #
 
 # Step 1: Set screen brightness to 0
-brightnessctl --device amdgpu_bl0 set 0
+brightnessctl set 0
 
 # Step 2: Set keyboard backlight to 0
 brightnessctl --device asus::kbd_backlight set 0
