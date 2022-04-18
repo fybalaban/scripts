@@ -1,10 +1,22 @@
 #$/bin/bash
-bluetoothctl connect F4:73:35:67:32:0A
-code=$?
+code=0
+let counter=1
 dt=$(date +'%d/%m/%y-%H.%M.%S')
-if [ $code -eq 0 ]; then
-    echo "[$dt] Connected to keyboard" > /home/ferit/navi.log
-else
-    echo "[$dt] Couldn't connect to keyboard" > /home/ferit/navi.log
-fi
+
+function connect() {
+    bluetoothctl connect F4:73:35:67:32:0A
+    code=$?
+}
+
+while (( counter <= 5 ))
+do
+    connect
+    if [ $code -eq 0 ]; then
+        echo "[$dt] Connected to keyboard" >> /home/ferit/navi.log
+        break
+    else
+        echo "[$dt] Couldn't connect to keyboard ($counter/5)" >> /home/ferit/navi.log
+    fi
+    ((counter++))
+done
 exit 0
