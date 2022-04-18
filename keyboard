@@ -1,0 +1,10 @@
+#$/bin/bash
+bluetoothctl connect F4:73:35:67:32:0A
+code=$?
+dt=$(date +'%d/%m/%y-%H.%M.%S')
+if [ $code -eq 0 ]; then
+    echo "[$dt] Connected to keyboard" > /home/ferit/navi.log
+else
+    echo "[$dt] Couldn't connect to keyboard" > /home/ferit/navi.log
+fi
+exit 0
