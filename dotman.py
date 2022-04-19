@@ -18,7 +18,7 @@ SETTINGS = {
 }
 WHEREAMI = '$HOME/scripts'
 VER = 'v1.7'
-WER = 'v1'
+WER = 'v1.1'
 help_message = f'''
 dotman {VER} dotfiles manager by fyb
 
@@ -58,6 +58,10 @@ def read_setup():
         key = line.split(':', 1)[0].rstrip()
         value = line.split(':', 1)[1].lstrip()
         SETTINGS[key] = value
+
+
+def write_setup():
+    path = f'{WHEREAMI}setup.dtm' if SETTINGS['SETUP_FILE'] == 'same-directory' else os.path.expandvars(SETTINGS['SETUP_FILE'])
 
 
 def rrem(text: str, char: str):
@@ -246,6 +250,8 @@ def main():
                 elif num.isnumeric() and 1 <= int(num) <= len(SETTINGS):
                     key = get_nth_key(int(num) - 1, SETTINGS)
                     SETTINGS[key] = input(f'Enter new value for {key}: ').strip()
+            print('Saving changes to file')
+            write_setup()
 
     elif flag_version:
         print(f'dotman version: {VER.removeprefix("v")}')

@@ -1,0 +1,5 @@
+# setup file for dotman v1.8
+DOTFILES_REPOSITORY:$HOME/repos/dotfiles
+REMOTE_REPOSITORY:https://github.com/fybx/dotfiles
+LOCAL_CONFIG:$HOME/.config
+SETUP_FILE:same-directory
