@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+#
+#       Ferit Yiğit BALABAN <fyb@duck.com>, 2022
+#
+import os
+
+
+def f_c(l: list[str], p: int, n: int, i: str):
+    r = []
+    if p == 0:
+        r = [i + x[n:] for x in l]
+    elif p > 0:
+        r = [x[:n + 1] + i for x in l]
+    return r
+
+
+def f_r(l: list[str], p: str, i: str):
+    r = [x.replace(p, i) for x in l]
+    return r
+
+
+def main():
+    d = os.getcwd()
+    f = []
+    r = []
+    m = 0
+    f = os.listdir(d)
+
+    while True:
+        q = input('# ').strip()
+        e = q.split(' ')
+        m = 1 if e[0] == 'sr' else 0
+        if e[0] == 'fn' and e[1].isnumeric():
+            r = f_c(*(f, 0, int(e[1]), '') if m == 0 else (f, 0, int(e[1]), e[2]))
+        elif e[0] == 'ln' and e[1].isnumeric():
+            r = f_c(*(f, 1, int(e[1]), '') if m == 0 else (f, 1, int(e[1]), e[2]))
+        elif e[0] == 'em':
+            r = f_r(*(f, e[1], '') if m == 0 else (f, e[1], e[2]))
+        elif e[0] == 'pd':
+            print(d)
+        elif e[0] == 'cd':
+            os.chdir(e[1])
+            f = os.listdir(d)
+        elif e[0] == 'lf':
+            print(*f, sep='\n')
+        elif e[0] == 'lr':
+            print(*r, sep='\n')
+        elif e[0] == 'rf' and e[1].isalnum() and e[1] in f:
+            f.remove(e[1])
+        elif e[0] == 'rr' and e[1].isalnum() and e[1] in r:
+            r.remove(e[1])
+        elif e[0] == 'ex' or e[0] == 'qq':
+            break
+    [print(f'{f[c]} => {r[c]}') if f[c] != r[c] else False for c in range(0, len(f))]
+    if input('# ?').lower() == 'y':
+        [os.rename(f[c], r[c]) if f[c] != r[c] else False for c in range(0, len(f))]
+
+
+if __name__ == '__main__':
+    main()
