@@ -5,12 +5,12 @@ import sys
 
 
 def main():
-    primary_color = '#FF93A0'
+    primary_color = '#c38ccf'
     prc_frmstring = f'F{primary_color}'
     prc_fwrappers = f'{{{prc_frmstring}}}'
-    backg_colour = '#282A2E'
-    backg_clralt = '#373B41'
-    foreg_colour = '#C5C8C6'
+    backg_colour = '#0f0f14'
+    backg_clralt = '#0f0f14'
+    foreg_colour = '#FFEBFF'
 
     interface_wlan = 'wlp3s0'
     interface_ethr = 'enp2s0'
@@ -28,8 +28,9 @@ def main():
     width = 100%
     height = 2.5%
     radius = 0
-    font-0 = "JetBrainsMono;2"
-    
+    font-0 = "JetBrainsMono Nerd Font;2"
+    font-1 = "IPAGothic"
+
     background = ${{colors.background}}
     foreground = ${{colors.foreground}}
     
@@ -41,36 +42,34 @@ def main():
     padding-right = 1
     module-margin = 1
     
-    separator =
+    separator = |
     separator-foreground = ${{colors.disabled}}
-    
-    modules-left = xworkspaces xwindow
-    modules-center = date
-    modules-right = aud bat mem cpu temp wlan eth
-    
+    modules-left = xworkspaces music
+    modules-center = arch xwindow
+    modules-right = aud bat mem cpu temp wlan eth date
     cursor-click = pointer
-    cursor-scroll = ns-resize
-    
     enable-ipc = true
-    
-    ; tray-position = right
-    
-    ; wm-restack = generic
-    ; wm-restack = bspwm
-    ; wm-restack = i3
-    
-    ; override-redirect = true
+   
+    [module/music]
+    type = custom/script
+    exec = /home/ferit/scripts/nowplaying.py
+    tail = true
+    interval = 2
+
+    [module/arch]
+    type = custom/text
+    content = " "
+    content-foreground = {primary_color}
     
     [module/xworkspaces]
     type = internal/xworkspaces
-    
-    label-active = ●
+    label-active = 
     label-active-foreground = ${{colors.primary}}
     label-active-background = ${{colors.background-alt}}
     label-active-underline= ${{colors.primary}}
     label-active-padding = 1
     
-    label-occupied = ●
+    label-occupied = 
     label-occupied-padding = 1
     
     label-urgent = ●
@@ -83,15 +82,15 @@ def main():
     
     [module/xwindow]
     type = internal/xwindow
-    label = %title:0:30:...%
+    label = %title:0:31:...%
     
     [module/aud]
     type = internal/pulseaudio
-    format-volume-prefix = "VOL "
+    format-volume-prefix = " "
     format-volume-prefix-foreground = ${{colors.primary}}
     format-volume = <label-volume>
     label-volume = %percentage%%
-    label-muted = MUT
+    label-muted = 
     label-muted-foreground = ${{colors.disabled}}
     
     [module/bat]
@@ -101,24 +100,43 @@ def main():
     adapter = ADP0
     poll-interval = 5
     
-    format-charging = %{prc_fwrappers}CHR%{{F-}} <label-charging>
-    format-discharging = %{prc_fwrappers}DIS%{{F-}} <label-discharging>
-    format-full = %{prc_fwrappers}FULL%{{F-}}
+    ramp-capacity-0 = 
+    ramp-capacity-1 =  
+    ramp-capacity-2 = 
+    ramp-capacity-3 = 
+    ramp-capacity-4 = 
+    ramp-capacity-5 = 
+    ramp-capacity-6 = 
+    ramp-capacity-7 = 
+    ramp-capacity-8 = 
     
+    animation-charging-0 = 
+    animation-charging-1 = 
+    animation-charging-2 = 
+    animation-charging-3 = 
+    animation-charging-4 = 
+    animation-charging-5 = 
+    animation-charging-6 = 
+    animation-charging-framerate = 750
+    
+    format-charging = %{prc_fwrappers}<animation-charging>%{{F-}} <label-charging>
+    format-discharging = %{prc_fwrappers}<ramp-capacity>%{{F-}} <label-discharging>
+    format-full = %{prc_fwrappers}%{{F-}} <label-full>
+    label-full = %percentage%%
     label-charging = %percentage%%
     label-discharging = %percentage%%
     
     [module/mem]
     type = internal/memory
     interval = 2
-    format-prefix = "RAM "
+    format-prefix = " "
     format-prefix-foreground = ${{colors.primary}}
     label = %percentage_used%%
     
     [module/cpu]
     type = internal/cpu
     interval = 2
-    format-prefix = "CPU "
+    format-prefix = " "
     format-prefix-foreground = ${{colors.primary}}
     label = %percentage%%
     
@@ -127,7 +145,7 @@ def main():
     interval = 10
     thermal-zone = 0
     hwmon-path = /sys/class/hwmon/hwmon1/temp1_input
-    format-prefix = "TEMP "
+    format-prefix = "﨎 "
     format-prefix-foreground = ${{colors.primary}}
     label = %temperature-c%
     
@@ -137,8 +155,8 @@ def main():
     interface = {interface_wlan}
     label-connected = %essid%
     label-disconnected =
-    format-connected = <label-connected>
-    format-disconnected = <label-disconnected>
+    format-connected = %{prc_fwrappers}直%{{F-}} <label-connected>
+    format-disconnected = %{prc_fwrappers}睊%{{F-}} <label-disconnected>
     
     [module/eth]
     type = internal/network
@@ -146,13 +164,14 @@ def main():
     interface = {interface_ethr}
     label-connected = UP
     label-disconnected =
-    format-connected = <label-connected>
+    format-connected = %{prc_fwrappers}%{{F-}} <label-connected>
     format-disconnected = <label-disconnected>
     
     [module/date]
     type = internal/date
     interval = 60
-    date = %d-%m-%Y %H:%M
+    date = %H.%M
+    date-alt = %d/%m/%y
     label = %date%
     label-foreground = ${{colors.primary}}
     
