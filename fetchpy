@@ -11,11 +11,11 @@ install(show_locals=True)
 
 
 def coloring(text):
-    color1 = '#' + '785BAF'
-    color2 = '#' + 'DF73AA'
-    color3 = '#' + 'B6D871'
-    color4 = '#' + 'F1E7C2'
-    color5 = '#' + '77B2CC'
+    color1 = '#' + '5BCEFA'
+    color2 = '#' + 'F5A9B8'
+    color3 = '#' + 'FFFFFF'
+    color4 = color2
+    color5 = color1
     frame = color2
     info = color3
     title = color5
