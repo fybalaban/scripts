@@ -52,7 +52,7 @@ def main():
    
     [module/music]
     type = custom/script
-    exec = /home/ferit/scripts/nowplaying.py
+    exec = /home/ferit/scripts/nowplaying.sh
     tail = true
     interval = 2
 
