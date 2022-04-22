@@ -1,9 +1,8 @@
 #!/bin/bash
-
-if [ $(playerctl status) = 'Playing' ]; then
-    a=$( playerctl metadata artist )
-    t=$( playerctl metadata title )
-    echo "$a - $t"
+status=$( playerctl status )
+if [ $? -eq 0 ]; then
+    echo $( playerctl -f '{{trunc(xesam:artist, 20)}} - {{trunc(xesam:title, 30)}}' metadata )
+else
+    echo ""
 fi
-
 exit 0
