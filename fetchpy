@@ -4,21 +4,36 @@
 #
 #       fetchpy, fetch script alternative to neofetch
 import os
-import subprocess as sp
+from subprocess import run
 from rich.console import Console
 from rich.traceback import install
 install(show_locals=True)
 
 
+COLOR1 = '#75FDFF'
+COLOR2 = '#FFE252'
+COLOR3 = '#D66565'
+COLOR4 = '#FFAB3D'
+
+
+def read_theme():
+    with open('/home/ferit/scripts/fetch.theme', 'r') as f:
+        l = f.readlines()
+        f.close()
+    global COLOR1
+    global COLOR2
+    global COLOR3
+    global COLOR4
+    COLOR1 = l[0]
+    COLOR2 = l[1]
+    COLOR3 = l[2]
+    COLOR4 = l[3]
+
+
 def coloring(text):
-    color1 = '#' + '5BCEFA'
-    color2 = '#' + 'F5A9B8'
-    color3 = '#' + 'FFFFFF'
-    color4 = color2
-    color5 = color1
-    frame = color2
-    info = color3
-    title = color5
+    frame = COLOR2
+    info = COLOR3
+    title = COLOR1
     color_dictionary = {
         '╭': frame,
         '╰': frame,
@@ -28,39 +43,31 @@ def coloring(text):
         '┤': frame,
         '│': frame,
         '├': frame,
-        'DIST': info,
-        'KERN': info,
-        'SHEL': info,
-        'TERM': info,
-        'PACK': info,
+        'DST': info,
+        'KRN': info,
+        'SHL': info,
+        'PCK': info,
         'CPU': info,
-        'iGPU': info,
-        'dGPU': info,
+        'GPU': info,
         'MEM': info,
         'UPT': info,
         'ferit@navi': title,
         'Hardware': title,
-        '-@\n': color1,
-        '.##@': color1,
-        '.####@': color1,
-        '@#####@': color2,
-        '.**######@': color2,
-        '.##@o@#####@': color2,
-        '.############@': color3,
-        '.##############@': color3,
-        '@######@**%######@': color3,
-        '@######`': color4,
-        '%#####o': color4,
-        '@######@': color4,
-        '######%': color4,
-        '-@#######h': color4,
-        '######@.`': color4,
-        '.#####h**``': color5,
-        '`**%@####@': color5,
-        '@H@*`': color5,
-        '*`': color5,
-        '`*%#@': color5,
-        '`*': color5,
+        'O': COLOR1,
+        'o': COLOR1,
+        ':': COLOR2,
+        ';': COLOR2,
+        '>': COLOR3,
+        ',': COLOR4,
+        '.:/': COLOR4,
+        '/': COLOR4,
+        '\\\\\\': COLOR4,
+        '\\': COLOR4,
+        ',,///;,': COLOR4,
+        '\';\\': COLOR4,
+        '\';\\\\': COLOR4,
+        ',;/': COLOR4,
+        '\'\'\\\\\\\\\\\'"': COLOR4
     }
     c = Console()
     iterator = 0
@@ -74,13 +81,21 @@ def coloring(text):
                 print(' ', end='')
                 word, jump_to = read_until_space(text, start_at=iterator + 1)
                 if color_dictionary.__contains__(word):
-                    c.print(word, style=color_dictionary[word], end='')
+                    if '\\' in word:
+                        word_style = color_dictionary[word]
+                        for character in word:
+                            c.print(character, style=word_style, end='')
+                    else:
+                        c.print(f'[{color_dictionary[word]}]{word}[/{color_dictionary[word]}]', end='')
                 else:
                     print(word, end='')
                 iterator = jump_to
             print(' ', end='')
         elif color_dictionary.__contains__(character):
-            c.print(character, style=color_dictionary[character], end='')
+            if character == '\\':
+                c.print(character, style=color_dictionary[character], end='')
+            else:
+                c.print(f'[{color_dictionary[character]}]{character}[/{color_dictionary[character]}]', end='')
         else:
             print(character, end='')
         iterator += 1
@@ -98,34 +113,24 @@ def read_until_space(text, start_at):
 
 
 def main():
-    padding_count = 29
+    read_theme()
+    padding_count = 23
 
-    distro_name = 'Arch GNU/Linux x86_64'
+    distro_name = 'Arch GNU/Linux'
     distro_name = distro_name.ljust(padding_count, ' ')
 
     kernel_version = str(os.uname().release)
     kernel_version = kernel_version.ljust(padding_count, ' ')
 
+    installed_packages = run(['pacman', '-Q'], text=True, capture_output=True).stdout.splitlines()
     shell_name = 'fish'
-    query_pacman = sp.Popen(['pacman', '-Q'], stdout=sp.PIPE)
-    grep_paclist = sp.Popen(['grep', f'{shell_name}'], stdin=query_pacman.stdout, stdout=sp.PIPE)
-    query_pacman.stdout.close()
-    shell_name, err = grep_paclist.communicate()
-    shell_name = str(shell_name).removeprefix('b\'').removesuffix('\\n\'').ljust(padding_count, ' ')
+    for _ in installed_packages:
+        if shell_name in _:
+            shell_name = _.removesuffix('\n').ljust(padding_count, ' ')
+    package_count = str(len(installed_packages)).ljust(padding_count, ' ')
 
-    terminal_name = 'kitty'
-    terminal_name = terminal_name.ljust(padding_count, ' ')
-
-    query_pacman = sp.Popen(['pacman', '-Q'], stdout=sp.PIPE)
-    count_output = sp.Popen(['wc', '-l'], stdin=query_pacman.stdout, stdout=sp.PIPE)
-    output, err = count_output.communicate()
-    package_count = str(output).removeprefix('b\'').removesuffix('\\n\'').ljust(padding_count, ' ')
-
-    total_memory, used_memory, free_memory, d1, d2, d3 = map(int, os.popen('free -m').readlines()[1].split()[1:])
-    mem_percentage = round((used_memory / total_memory) * 100, 2)
-    used_memory = round((used_memory / 1024), 1)
-    total_memory = round((total_memory / 1024), 1)
-    memory_usage = f'{used_memory} GiB / {total_memory} GiB ({mem_percentage}%)'.ljust(padding_count, ' ')
+    total_memory, used_memory, free_memory, d1, d2, d3 = map(int, os.popen('free -g --si').readlines()[1].split()[1:])
+    memory_usage = f'{used_memory} GB / {total_memory} GB'.ljust(padding_count, ' ')
 
     with open('/proc/uptime', 'r') as f:
         uptime_seconds = float(f.readline().split()[0])
@@ -141,21 +146,19 @@ def main():
     uptime = uptime.ljust(padding_count, ' ')
 
     txt = f'''
-                -@
-               .##@                ╭──────────── ferit@navi ────────────╮
-              .####@               │ DIST  {distro_name}│
-              @#####@              │ KERN  {kernel_version}│
-            .**######@             │ SHEL  {shell_name}│
-           .##@o@#####@            │ TERM  {terminal_name}│
-          .############@           │ PACK  {package_count}│
-         .##############@          ├───────────── Hardware ─────────────┤
-        @######@**%######@         │ CPU   AMD Ryzen 7 5800H (16 Cores) │
-       @######`     %#####o        │ iGPU  AMD Radeon™ Graphics (2 GHz) │
-      @######@       ######%       │ dGPU  NVIDIA GeForce RTX 3050 Ti   │
-    -@#######h       ######@.`     │ MEM   {memory_usage}│
-   .#####h**``       `**%@####@    │ UPT   {uptime}│
-  @H@*`                    `*%#@   ╰────────────────────────────────────╯
- *`                            `* 
+
+                          ╭──────── ferit@navi ────────╮
+                          │ DST {distro_name}│
+ O     O           ,      │ KRN {kernel_version}│
+   o o          .:/       │ SHL {shell_name}│
+     o      ,,///;,   ,;/ │ PCK {package_count}│
+       o   o)::::::;;///  ├───────── Hardware ─────────┤
+          >::::::::;;\\\\\\  │ CPU AMD Ryzen 7 5800H      │
+            ''\\\\\\\\\\'" ';\\ │ GPU NV GeForce RTX3050 Ti  │
+               ';\\        │ MEM {memory_usage}│
+                          │ UPT {uptime}│
+                          ╰────────────────────────────╯
+
 '''
     coloring(txt)
 
