@@ -129,8 +129,8 @@ def main():
             shell_name = _.removesuffix('\n').ljust(padding_count, ' ')
     package_count = str(len(installed_packages)).ljust(padding_count, ' ')
 
-    total_memory, used_memory, free_memory, d1, d2, d3 = map(int, os.popen('free -g --si').readlines()[1].split()[1:])
-    memory_usage = f'{used_memory} GB / {total_memory} GB'.ljust(padding_count, ' ')
+    total_memory, used_memory, free_memory, d1, d2, d3 = map(int, os.popen('free -m').readlines()[1].split()[1:])
+    memory_usage = f'{round((used_memory / 1024), 1)} GB / {round((total_memory / 1024), 1)} GB'.ljust(padding_count, ' ')
 
     with open('/proc/uptime', 'r') as f:
         uptime_seconds = float(f.readline().split()[0])
