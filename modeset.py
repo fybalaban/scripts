@@ -11,8 +11,8 @@ from subprocess import run
 
 HOME_FOLDR = '/home/ferit'
 PATH_LOGFL = f'{HOME_FOLDR}/navi.log'
-DARK_THEME = f'{HOME_FOLDR}/repos/kitty-themes/themes/hardcore.conf'
-LGHT_THEME = f'{HOME_FOLDR}/repos/kitty-themes/themes/Novel.conf'
+DARK_THEME = f'Hardcore'
+LGHT_THEME = f'Tango Light'
 DARK_WLLPR = f'{HOME_FOLDR}/sources/wallpapers/6kkzj7.png'
 LGHT_WLLPR = f'{HOME_FOLDR}/sources/wallpapers/5dd9v9.png'
 DARK_FETCH = f'{HOME_FOLDR}/scripts/fetchdark.theme'
@@ -47,11 +47,7 @@ def set_fetchpy(theme: str):
 
 
 def set_kitty(theme: str):
-    try:
-        os.remove(PATH_KITTY)
-    except FileNotFoundError:
-        pass
-    os.symlink(theme, PATH_KITTY)
+    run(['kitty', '+kitten', 'themes', '--reload-in=all', theme])
 
 
 def main():
