@@ -24,7 +24,7 @@ KBD_NAME = 'asus::kbd_backlight'
 
 def write(status: str):
     log = f'[{datetime.now().strftime("%d/%m/%y-%H.%M.%S")}]'
-    log += 'navi is going dark.' if status == 'dark' else 'navi is enlightened.'
+    log += ' navi is going dark.\n' if status == 'dark' else ' navi is enlightened.\n'
     with open(PATH_LOGFL, 'a') as f:
         f.write(log)
         f.close()
