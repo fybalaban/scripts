@@ -35,7 +35,7 @@ def set_kbdlight(intensity: int):
 
 
 def set_wallpaper(wallpaper: str):
-    run(['nitrogen', '--set-centered', wallpaper])    
+    run(['nitrogen', '--set-centered', '--save', wallpaper])    
 
 
 def set_fetchpy(theme: str):
