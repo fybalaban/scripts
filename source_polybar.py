@@ -44,17 +44,17 @@ def main():
     
     separator = |
     separator-foreground = ${{colors.disabled}}
-    modules-left = xworkspaces music
+    modules-left = xworkspaces
     modules-center = arch xwindow
     modules-right = aud bat mem cpu temp wlan eth date
     cursor-click = pointer
     enable-ipc = true
    
-    [module/music]
-    type = custom/script
-    exec = /home/ferit/scripts/nowplaying.sh
-    tail = true
-    interval = 2
+    ;[module/music]
+    ;type = custom/script
+    ;exec = /home/ferit/scripts/nowplaying.sh
+    ;tail = true
+    ;interval = 2
 
     [module/arch]
     type = custom/text
