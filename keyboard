@@ -17,6 +17,7 @@ do
     else
         echo "[$dt] Couldn't connect to keyboard ($counter/5)" >> /home/ferit/navi.log
     fi
+    sleep 5
     ((counter++))
 done
 exit 0
