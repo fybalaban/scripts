@@ -5,36 +5,17 @@
 #       fetchpy, fetch script alternative to neofetch
 import os
 from subprocess import run
-from rich.console import Console
-from rich.traceback import install
-install(show_locals=True)
 
 
-COLOR1 = '#75FDFF'
-COLOR2 = '#FFE252'
-COLOR3 = '#D66565'
-COLOR4 = '#FFAB3D'
+IMG_LOC = '/home/ferit/sources/neco.png'
 
 
-def read_theme():
-    with open('/home/ferit/scripts/fetch.theme', 'r') as f:
-        l = f.readlines()
-        f.close()
-    global COLOR1
-    global COLOR2
-    global COLOR3
-    global COLOR4
-    COLOR1 = l[0]
-    COLOR2 = l[1]
-    COLOR3 = l[2]
-    COLOR4 = l[3]
-
-
-def coloring(text):
-    frame = COLOR2
-    info = COLOR3
-    title = COLOR1
-    color_dictionary = {
+def clr(text):
+    dump = '\u001b[30m█\u001b[31m█\u001b[32m█\u001b[33m█\u001b[34m█\u001b[35m█\u001b[36m█\u001b[37m█'
+    frame = '\u001b[31m' 
+    info = '\u001b[32m'
+    title = '\u001b[33m'
+    clr_dict = {
         '╭': frame,
         '╰': frame,
         '╯': frame,
@@ -51,39 +32,33 @@ def coloring(text):
         '': info,
         '': info,
         '': info,
-        '─ferit@navi': title,
-        'Hardware': title,
+        'ferit@navi': title,
+        'Hardware': '',
     }
-    c = Console()
-    iterator = 0
-    while iterator < len(text):
-        character = text[iterator]
-        peekable = iterator < len(text) - 1
-        peek = text[iterator + 1] if peekable else ' '
+    iter = 0
+    while iter < len(text):
+        char = text[iter]
+        peekable = iter < len(text) - 1
+        peek = text[iter + 1] if peekable else ' '
 
-        if character == ' ':
-            if peekable and peek != ' ' and not color_dictionary.__contains__(peek):
+        if char == ' ':
+            if peekable and peek != ' ' and not clr_dict.__contains__(peek):
                 print(' ', end='')
-                word, jump_to = read_until_space(text, start_at=iterator + 1)
-                if color_dictionary.__contains__(word):
-                    if '\\' in word:
-                        word_style = color_dictionary[word]
-                        for character in word:
-                            c.print(character, style=word_style, end='')
+                word, jump_to = read_until_space(text, start_at=iter + 1)
+                if clr_dict.__contains__(word):
+                    if word == 'Hardware':
+                        print(dump, end='')
                     else:
-                        c.print(f'[{color_dictionary[word]}]{word}[/{color_dictionary[word]}]', end='')
+                        print(f'{clr_dict[word]}{word}\u001b[0m', end='')
                 else:
                     print(word, end='')
-                iterator = jump_to
+                iter = jump_to
             print(' ', end='')
-        elif color_dictionary.__contains__(character):
-            if character == '\\':
-                c.print(character, style=color_dictionary[character], end='')
-            else:
-                c.print(f'[{color_dictionary[character]}]{character}[/{color_dictionary[character]}]', end='')
+        elif clr_dict.__contains__(char):
+                print(f'{clr_dict[char]}{char}\u001b[0m', end='')
         else:
-            print(character, end='')
-        iterator += 1
+            print(char, end='')
+        iter += 1
     print('')
 
 
@@ -98,7 +73,6 @@ def read_until_space(text, start_at):
 
 
 def main():
-    read_theme()
     padding_count = 23
 
     distro_name = 'Arch GNU/Linux'
@@ -142,11 +116,16 @@ def main():
 │  {uptime}│
 ╰──────────────────────────╯
 '''
+    
     txt_padded = ''
     img_width = 15
+    line_count = 0 
     for line in txt.splitlines():
         txt_padded += ((' ' * img_width) + line + '\n')
-    coloring(txt_padded)
+        line_count += 1
+    run(['/usr/bin/kitty', 'icat', '--align', 'left', IMG_LOC])
+    run(['printf', "\e[%sA\e[999999D", str(line_count)])
+    clr(txt_padded)
 
 
 if __name__ == '__main__':
