@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#       Ferit Yiğit BALABAN <fyb@duck.com>, 2022
+#       Ferit Yiğit BALABAN <f@fybx.dev>, 2022
 #
 import os.path
 from subprocess import run
@@ -119,7 +119,11 @@ def special_copy(source, dest):
         'nitrogen',
         'picom',
         'polybar',
-        'rofi'
+        'rofi',
+        'xfce4',
+        'navi',
+        'gtk-4.0',
+        'flameshot'
     ]
     dirs = os.listdir(source)
     selected_dirs = []
@@ -263,3 +267,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
