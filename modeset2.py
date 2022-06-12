@@ -67,6 +67,8 @@ async def open_subprocess(cmd: str):
 
 
 async def change_wallpaper(mode: int, cringe = False):
+    if not os.path.exists(PATH_RESC_WALLPS):
+        get_wallpapers():    
     region = f"{mode}{1 if cringe else 0}"
     with open(PATH_RESC_WALLPS, 'r') as f:
         file = f.read()
@@ -162,7 +164,6 @@ def main():
     sys.argv.remove(sys.argv[0])
     sys.argv.reverse()
     expand_vars()
-    asyncio.run(change_wallpaper(0, cringe = True))
     if len(sys.argv) == 1:
         if sys.argv[0] == "--login":
             log("modeset2 started with \"--login\"")
@@ -174,9 +175,12 @@ def main():
             else:
                 set_brightness(0, 40)
                 set_brightness(1, 100)
+            asyncio.run(change_wallpaper(mode))
         elif sys.argv[0] == "--lock":
             log("modeset2 started with \"--lock\"")
-            print("Lock")
+            asyncio.run(set_volume(0, save_state = True))
+            asyncio.run(set_brightness(0, 0, save_state = True))
+            asyncio.run(set_brightness(1, 0, save_state = True))
         elif sys.argv[0] == "--unlock":
             log("modeset2 started with \"--unlock\"")
             print("Unlock")
