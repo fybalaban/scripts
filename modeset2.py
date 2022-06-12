@@ -3,7 +3,7 @@
 #       Ferit Yiğit BALABAN <f@fybx.dev>, 2022
 #
 from datetime import datetime as dt
-from subprocess import run, Popen, PIPE
+from subprocess import run, Popen, PIPE, DEVNULL
 import shlex
 import random
 import sys
@@ -77,8 +77,8 @@ def change_wallpaper(mode: int, cringe=False):
 
 
 def lock():
-    run_command(f"bash {PATH_SCPT_LOCKER}")
-    run_command(f"betterlockscreen --lock --off 5")
+    Popen(["bash", PATH_SCPT_LOCKER])
+    Popen(["betterlockscreen", "-l"], stdout=DEVNULL)
 
 
 def pause_media():
@@ -111,7 +111,7 @@ def get_wallpapers():
 
 
 def get_brightness(device: int):
-    command = "brightnessctl" if device == 0 else f"brightness --device {VAR_KBDNAME}"
+    command = "brightnessctl" if device == 0 else f"brightnessctl --device {VAR_KBDNAME}"
     return int(do_query(command).split('(')[1].split(')')[0].replace('%', ''))
 
 
