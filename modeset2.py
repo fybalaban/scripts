@@ -74,7 +74,10 @@ async def change_wallpaper(mode: int, cringe = False):
         file = f.read()
         f.close()
     list = file.split(region)[1].split("EOR")[0].lstrip('\n').splitlines()
-    command = f"wal -i {random.choice(list)}"
+    wallpaper = random.choice(list)
+    command = f"wal -i {wallpaper}"
+    await open_subprocess(command)
+    command = f"betterlockscreen -u {wallpaper}"
     await open_subprocess(command)
 
 
