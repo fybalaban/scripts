@@ -15,6 +15,8 @@ PATH_SCPT_KEYBOARD = "$HOME/scripts/keyboard"
 PATH_RESC_VOLUME = "$HOME/.config/navi/volume"
 PATH_RESC_KBDLGT = "$HOME/.config/navi/kbdlgt"
 PATH_RESC_SCRLGT = "$HOME/.config/navi/scrlgt"
+PATH_RESC_LIGHTW = "$HOME/sources/wallpapers/light/"
+PATH_RESC_DARKW =  "$HOME/sources/wallpapers/dark/"
 VAR_KBDNAME = "asus::kbd_backlight"
 
 
