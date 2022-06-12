@@ -134,10 +134,20 @@ def get_mode():
     return 0 if low <= now and now < hgh else 1
 
 
+def expand_vars():
+    PATH_SCPT_KEYBRD = os.path.expandvars(PATH_SCPT_KEYBRD)
+    PATH_RESC_VOLUME = os.path.expandvars(PATH_RESC_VOLUME)
+    PATH_RESC_KBDLGT = os.path.expandvars(PATH_RESC_KBDLGT)
+    PATH_RESC_SCRLGT = os.path.expandvars(PATH_RESC_SCRLGT)
+    PATH_RESC_LIGHTW = os.path.expandvars(PATH_RESC_LIGHTW)
+    PATH_RESC_DARKW = os.path.expandvars(PATH_RESC_DARKW)
+    PATH_RESC_WALLPS = os.path.expandvars(PATH_RESC_WALLPS)
+
 def main():
-    get_wallpapers()
     sys.argv.remove(sys.argv[0])
     sys.argv.reverse()
+    expand_vars()
+    get_wallpapers()
     if len(sys.argv) == 1:
         if sys.argv[0] == "--login":
             log("modeset2 started with \"--login\"")
