@@ -13,6 +13,8 @@ START_NIGHT = "22.30"
 START_DAY = "8.20"
 PATH_SCPT_KEYBOARD = "$HOME/scripts/keyboard"
 PATH_RESC_VOLUME = "$HOME/.config/navi/volume"
+PATH_RESC_KBDLGT = "$HOME/.config/navi/kbdlgt"
+PATH_RESC_SCRLGT = "$HOME/.config/navi/scrlgt"
 
 
 async def connect_keyboard():
