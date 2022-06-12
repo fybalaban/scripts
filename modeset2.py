@@ -5,6 +5,7 @@
 from datetime import datetime as dt
 from subprocess import run
 import asyncio
+import random
 import sys
 import os
 
@@ -65,8 +66,14 @@ async def open_subprocess(cmd: str):
     return p.returncode, stdout, stderr
 
 
-def change_wallpaper(mode: int, cringe = False):
-    return None
+async def change_wallpaper(mode: int, cringe = False):
+    region = f"{mode}{1 if cringe else 0}"
+    with open(PATH_RESC_WALLPS, 'r') as f:
+        file = f.read()
+        f.close()
+    list = file.split(region)[1].split("EOR")[0].lstrip('\n').splitlines()
+    command = f"wal -i {random.choice(list)}"
+    await open_subprocess(command)
 
 
 def get_wallpapers():
@@ -155,7 +162,7 @@ def main():
     sys.argv.remove(sys.argv[0])
     sys.argv.reverse()
     expand_vars()
-    get_wallpapers()
+    asyncio.run(change_wallpaper(0, cringe = True))
     if len(sys.argv) == 1:
         if sys.argv[0] == "--login":
             log("modeset2 started with \"--login\"")
