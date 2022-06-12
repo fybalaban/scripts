@@ -8,7 +8,7 @@ while : ; do
     then
         sleep 5
     else
-        echo Unlock!
+        python $HOME/scripts/modeset2.py --unlock
         break
     fi
 done
