@@ -11,12 +11,13 @@ import os
 
 START_NIGHT = "22.30"
 START_DAY = "8.20"
-PATH_SCPT_KEYBOARD = "$HOME/scripts/keyboard"
+PATH_SCPT_KEYBRD = "$HOME/scripts/keyboard"
 PATH_RESC_VOLUME = "$HOME/.config/navi/volume"
-PATH_RESC_KBDLGT = "$HOME/.config/navi/kbdlgt"
-PATH_RESC_SCRLGT = "$HOME/.config/navi/scrlgt"
+PATH_RESC_KBDLGT = "$HOME/.config/navi/keyboard"
+PATH_RESC_SCRLGT = "$HOME/.config/navi/screen"
 PATH_RESC_LIGHTW = "$HOME/sources/wallpapers/light/"
-PATH_RESC_DARKW =  "$HOME/sources/wallpapers/dark/"
+PATH_RESC_DARKW  = "$HOME/sources/wallpapers/dark/"
+PATH_RESC_WALLPS = "$HOME/.config/navi/wallpapers"
 VAR_KBDNAME = "asus::kbd_backlight"
 
 
@@ -36,7 +37,7 @@ async def set_brightness(device: int, value: int, save_state = False):
 
 
 async def connect_keyboard():
-    command = 'bash ' + os.path.expandvars(PATH_SCRIPT_KEYBOARD)
+    command = 'bash ' + os.path.expandvars(PATH_SCRIPT_KEYBRD)
     await open_subprocess(command)
 
 
@@ -62,6 +63,34 @@ async def open_subprocess(cmd: str):
             stderr=asyncio.subprocess.PIPE)
     stdout, stderr = await p.communicate()
     return p.returncode, stdout, stderr
+
+
+def change_wallpaper(mode: int, cringe = False):
+    return None
+
+
+def get_wallpapers():
+    l0 = os.listdir(PATH_RESC_LIGHTW)
+    d0 = os.listdir(PATH_RESC_DARKW)
+    l0.remove('cringe')
+    d0.remove('cringe')
+    l0 = [PATH_RESC_LIGHTW + x for x in l0]
+    d0 = [PATH_RESC_DARKW + x for x in d0]
+    l1 = os.listdir(PATH_RESC_LIGHTW + "cringe/")
+    d1 = os.listdir(PATH_RESC_DARKW + "cringe/")
+    l1 = [PATH_RESC_LIGHTW + "cringe/" + x for x in l1]
+    d1 = [PATH_RESC_DARKW + "cringe/" + x for x in d1]
+    with open(PATH_RESC_WALLPS, 'w') as f:
+        f.write("00:\n")
+        f.writelines(l0)
+        f.write("EOR\n01:\n")
+        f.writelines(l1)
+        f.write("EOR\n10:\n")
+        f.writelines(d0)
+        f.write("EOR\n11:\n")
+        f.writelines(d1)
+        f.write("EOR")
+        f.close()
 
 
 def get_brightness(device: int):
@@ -106,6 +135,7 @@ def get_mode():
 
 
 def main():
+    get_wallpapers()
     sys.argv.remove(sys.argv[0])
     sys.argv.reverse()
     if len(sys.argv) == 1:
