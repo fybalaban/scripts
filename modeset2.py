@@ -74,12 +74,12 @@ def get_wallpapers():
     d0 = os.listdir(PATH_RESC_DARKW)
     l0.remove('cringe')
     d0.remove('cringe')
-    l0 = [PATH_RESC_LIGHTW + x for x in l0]
-    d0 = [PATH_RESC_DARKW + x for x in d0]
+    l0 = [PATH_RESC_LIGHTW + x + '\n' for x in l0]
+    d0 = [PATH_RESC_DARKW + x + '\n' for x in d0]
     l1 = os.listdir(PATH_RESC_LIGHTW + "cringe/")
     d1 = os.listdir(PATH_RESC_DARKW + "cringe/")
-    l1 = [PATH_RESC_LIGHTW + "cringe/" + x for x in l1]
-    d1 = [PATH_RESC_DARKW + "cringe/" + x for x in d1]
+    l1 = [PATH_RESC_LIGHTW + "cringe/" + x + '\n' for x in l1]
+    d1 = [PATH_RESC_DARKW + "cringe/" + x + '\n' for x in d1]
     with open(PATH_RESC_WALLPS, 'w') as f:
         f.write("00:\n")
         f.writelines(l0)
@@ -135,6 +135,13 @@ def get_mode():
 
 
 def expand_vars():
+    global PATH_SCPT_KEYBRD
+    global PATH_RESC_VOLUME
+    global PATH_RESC_KBDLGT
+    global PATH_RESC_SCRLGT
+    global PATH_RESC_LIGHTW
+    global PATH_RESC_DARKW 
+    global PATH_RESC_WALLPS
     PATH_SCPT_KEYBRD = os.path.expandvars(PATH_SCPT_KEYBRD)
     PATH_RESC_VOLUME = os.path.expandvars(PATH_RESC_VOLUME)
     PATH_RESC_KBDLGT = os.path.expandvars(PATH_RESC_KBDLGT)
@@ -142,6 +149,7 @@ def expand_vars():
     PATH_RESC_LIGHTW = os.path.expandvars(PATH_RESC_LIGHTW)
     PATH_RESC_DARKW = os.path.expandvars(PATH_RESC_DARKW)
     PATH_RESC_WALLPS = os.path.expandvars(PATH_RESC_WALLPS)
+
 
 def main():
     sys.argv.remove(sys.argv[0])
