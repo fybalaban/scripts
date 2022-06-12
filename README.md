@@ -1,6 +1,6 @@
 ## scripts
 
-This repository contains Python and shell scripts that I actively develop and utilize on my GNU/Linux [(or as I've recently taken to calling it, GNU plus Linux)](https://balaban.software/tribute.html) machine.
+This repository contains Python and shell scripts that I actively develop and utilize on my GNU/Linux [(or as I've recently taken to calling it, GNU plus Linux)](https://fybx.dev/tribute.html) machine.
 
 |          | Shell Scripts                                                               | Python Scripts                                                                                                                      |
 |----------|-----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
