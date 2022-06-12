@@ -111,6 +111,12 @@ def main():
             log("modeset2 started with \"--login\"")
             asyncio.run(connect_keyboard())
             asyncio.run(set_volume(0))
+            if mode == 0:
+                set_brightness(0, 70)
+                set_brightness(1, 0)
+            else:
+                set_brightness(0, 40)
+                set_brightness(1, 100)
         elif sys.argv[0] == "--lock":
             log("modeset2 started with \"--lock\"")
             print("Lock")
