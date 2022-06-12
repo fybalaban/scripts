@@ -11,17 +11,28 @@ import os
 
 START_NIGHT = "22.30"
 START_DAY = "8.20"
+PATH_SCPT_KEYBOARD = "$HOME/scripts/keyboard"
+PATH_RESC_VOLUME = "$HOME/.config/navi/volume"
 
 
 async def connect_keyboard():
-    command = 'bash ' + os.path.expandvars("$HOME/scripts/keyboard")
+    command = 'bash ' + os.path.expandvars(PATH_SCRIPT_KEYBOARD)
     await open_subprocess(command)
 
 
 async def set_volume(value: int, save_state = False):
+    state = get_volume()
+    if value == -1:
+        with open(os.path.expandvars(PATH_RESC_VOLUME), 'r') as f:
+            value = int(f.read())
+            f.close()
     value = 100 if value > 100 else 0 if value < 0 else value
-    command = f'pactl set-sink-volume @DEFAULT_SINK@ {value}'
+    command = f'pactl set-sink-volume @DEFAULT_SINK@ {value}%'
     await open_subprocess(command)
+    if save_state:
+        with open(os.path.expandvars(PATH_RESC_VOLUME), 'w') as f:
+            f.write(str(state))
+            f.close()
 
 
 async def open_subprocess(cmd: str):
