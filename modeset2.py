@@ -3,9 +3,8 @@
 #       Ferit Yiğit BALABAN <f@fybx.dev>, 2022
 #
 from datetime import datetime as dt
-from subprocess import run
+from subprocess import run, Popen, PIPE
 import shlex
-import subprocess
 import random
 import sys
 import os
@@ -20,6 +19,7 @@ PATH_RESC_SCRLGT = "$HOME/.config/navi/screen"
 PATH_RESC_LIGHTW = "$HOME/sources/wallpapers/light/"
 PATH_RESC_DARKW = "$HOME/sources/wallpapers/dark/"
 PATH_RESC_WALLPS = "$HOME/.config/navi/wallpapers"
+PATH_RESC_NAVILG = "$HOME/navi.log"
 VAR_KBDNAME = "asus::kbd_backlight"
 
 
@@ -31,7 +31,7 @@ def set_brightness(device: int, value: int, save_state=False):
             value = int(f.read())
             f.close()
     command = f"brightnessctl set {value}%" if device == 0 else f"brightnessctl --device {VAR_KBDNAME} set {value}%"
-    open_subprocess(command)
+    run_command(command)
     if save_state:
         with open(os.path.expandvars(PATH_RESC_SCRLGT if device == 0 else PATH_RESC_KBDLGT), 'w') as f:
             f.write(str(state_scrlgt if device == 0 else state_kbdlgt))
@@ -39,8 +39,7 @@ def set_brightness(device: int, value: int, save_state=False):
 
 
 def connect_keyboard():
-    command = 'bash ' + PATH_SCPT_KEYBRD
-    open_subprocess(command)
+    run_command(f"bash {PATH_SCPT_KEYBRD}")
 
 
 def set_volume(value: int, save_state=False):
@@ -50,41 +49,41 @@ def set_volume(value: int, save_state=False):
             value = int(f.read())
             f.close()
     value = 100 if value > 100 else 0 if value < 0 else value
-    command = f'pactl set-sink-volume @DEFAULT_SINK@ {value}%'
-    open_subprocess(command)
+    run_command(f'pactl set-sink-volume @DEFAULT_SINK@ {value}%')
     if save_state:
         with open(os.path.expandvars(PATH_RESC_VOLUME), 'w') as f:
             f.write(str(state))
             f.close()
 
 
-def open_subprocess(cmd: str):
-    subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def run_command(cmd: str):
+    Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
+
+
+def do_query(cmd: str):
+    return run(shlex.split(cmd), text=True, capture_output=True).stdout
 
 
 def change_wallpaper(mode: int, cringe=False):
     if not os.path.exists(PATH_RESC_WALLPS):
         get_wallpapers()
-    region = f"{mode}{1 if cringe else 0}"
     with open(PATH_RESC_WALLPS, 'r') as f:
         file = f.read()
         f.close()
-    list = file.split(region)[1].split("EOR")[0].lstrip('\n').splitlines()
-    wallpaper = random.choice(list)
-    command = f"wal -i {wallpaper}"
-    open_subprocess(command)
-    command = f"betterlockscreen -u {wallpaper}"
-    open_subprocess(command)
+    wlist = file.split(f"{mode}{1 if cringe else 0}")[1].split("EOR")[0].lstrip('\n').splitlines()
+    wallpaper = random.choice(wlist)
+    run_command(f"wal -i {wallpaper}")
+    run_command(f"betterlockscreen -u {wallpaper}")
 
 
 def lock():
-    open_subprocess(f"bash {PATH_SCPT_LOCKER}")
-    open_subprocess(f"betterlockscreen --lock --off 5")
+    run_command(f"bash {PATH_SCPT_LOCKER}")
+    run_command(f"betterlockscreen --lock --off 5")
 
 
 def pause_media():
-    if run(["playerctl", "status"], text=True, capture_output=True).stdout == "Playing":
-        run(["playerctl", "pause"], text=True, capture_output=True)
+    if do_query("playerctl status") == "Playing":
+        run_command("playerctl pause")
 
 
 def get_wallpapers():
@@ -112,22 +111,19 @@ def get_wallpapers():
 
 
 def get_brightness(device: int):
-    if device == 0:
-        cmd = ['brightnessctl']
-    elif device == 1:
-        cmd = ['brightnessctl', '--device', VAR_KBDNAME]
-    return int(run(cmd, text=True, capture_output=True).stdout.split('(')[1].split(')')[0].replace('%', ''))
+    command = "brightnessctl" if device == 0 else f"brightness --device {VAR_KBDNAME}"
+    return int(do_query(command).split('(')[1].split(')')[0].replace('%', ''))
 
 
 def get_volume():
-    r = run(["pactl", "list"], text=True, capture_output=True)
-    for x in r.stdout.split("Sink #0")[1].split("Base Volume:")[0].split(' '):
+    r = do_query("pactl list")
+    for x in r.split("Sink #0")[1].split("Base Volume:")[0].split(' '):
         if '%' in x:
             return int(x.replace('%', ''))
 
 
 def log(message: str):
-    with open(os.path.expandvars("$HOME/navi.log"), 'a') as f:
+    with open(PATH_RESC_NAVILG, 'a') as f:
         f.write(f"[{dt.now().strftime('%m/%d/%y-%H.%M.%S')}] {message}\n")
         f.close()
 
@@ -141,8 +137,7 @@ def get_hour():
 def get_hour_spec(hour_str=None):
     if hour_str is not None:
         return (int(hour_str.split('.')[0]) * 60) + int(hour_str.split('.')[0])
-    else:
-        return (dt.now().hour * 60) + dt.now().minute
+    return (dt.now().hour * 60) + dt.now().minute
 
 
 def get_mode():
@@ -161,6 +156,7 @@ def expand_vars():
     global PATH_RESC_LIGHTW
     global PATH_RESC_DARKW
     global PATH_RESC_WALLPS
+    global PATH_RESC_NAVILG
     PATH_SCPT_KEYBRD = os.path.expandvars(PATH_SCPT_KEYBRD)
     PATH_SCPT_LOCKER = os.path.expandvars(PATH_SCPT_LOCKER)
     PATH_RESC_VOLUME = os.path.expandvars(PATH_RESC_VOLUME)
@@ -169,6 +165,7 @@ def expand_vars():
     PATH_RESC_LIGHTW = os.path.expandvars(PATH_RESC_LIGHTW)
     PATH_RESC_DARKW = os.path.expandvars(PATH_RESC_DARKW)
     PATH_RESC_WALLPS = os.path.expandvars(PATH_RESC_WALLPS)
+    PATH_RESC_NAVILG = os.path.expandvars(PATH_RESC_NAVILG)
 
 
 def main():
