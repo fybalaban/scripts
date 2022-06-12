@@ -33,6 +33,13 @@ async def open_subprocess(cmd: str):
     return p.returncode, stdout, stderr
 
 
+def get_volume():
+    r = run(["pactl", "list"], text=True, capture_output=True)
+    for x in r.stdout.split("Sink #0")[1].split("Base Volume:")[0].split(' '):
+        if '%' in x:
+            return int(x.replace('%', ''))
+
+
 def log(message: str):
     with open(os.path.expandvars("$HOME/navi.log"), 'a') as f:
         f.write(f"[{dt.now().strftime('%m/%d/%y-%H.%M.%S')}] {message}\n")
@@ -78,8 +85,9 @@ def main():
             print("Shutdown")
     elif len(sys.argv) == 0: 
         print("modeset2 by fyb")
-        print(f"local machine time: {get_hour()}")
-        print(f"current mode is: {get_mode()}")
+        print(f"local machine time:  {get_hour()}")
+        print(f"current mode is:     {get_mode()}")
+        print(f"current sink volume: {get_volume()}")
         print("""Available options:
 1. Login
 2. Lock
