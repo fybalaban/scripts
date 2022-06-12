@@ -6,11 +6,9 @@ from datetime import datetime as dt
 from subprocess import run
 import shlex
 import subprocess
-import asyncio
 import random
 import sys
 import os
-
 
 START_NIGHT = "22.30"
 START_DAY = "8.20"
@@ -20,12 +18,12 @@ PATH_RESC_VOLUME = "$HOME/.config/navi/volume"
 PATH_RESC_KBDLGT = "$HOME/.config/navi/keyboard"
 PATH_RESC_SCRLGT = "$HOME/.config/navi/screen"
 PATH_RESC_LIGHTW = "$HOME/sources/wallpapers/light/"
-PATH_RESC_DARKW  = "$HOME/sources/wallpapers/dark/"
+PATH_RESC_DARKW = "$HOME/sources/wallpapers/dark/"
 PATH_RESC_WALLPS = "$HOME/.config/navi/wallpapers"
 VAR_KBDNAME = "asus::kbd_backlight"
 
 
-def set_brightness(device: int, value: int, save_state = False):
+def set_brightness(device: int, value: int, save_state=False):
     state_kbdlgt = get_brightness(1)
     state_scrlgt = get_brightness(0)
     if value == -1:
@@ -45,7 +43,7 @@ def connect_keyboard():
     open_subprocess(command)
 
 
-def set_volume(value: int, save_state = False):
+def set_volume(value: int, save_state=False):
     state = get_volume()
     if value == -1:
         with open(os.path.expandvars(PATH_RESC_VOLUME), 'r') as f:
@@ -61,15 +59,12 @@ def set_volume(value: int, save_state = False):
 
 
 def open_subprocess(cmd: str):
-    p = subprocess.Popen( 
-            shlex.split(cmd),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+    subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
-def change_wallpaper(mode: int, cringe = False):
+def change_wallpaper(mode: int, cringe=False):
     if not os.path.exists(PATH_RESC_WALLPS):
-        get_wallpapers()    
+        get_wallpapers()
     region = f"{mode}{1 if cringe else 0}"
     with open(PATH_RESC_WALLPS, 'r') as f:
         file = f.read()
@@ -88,8 +83,8 @@ def lock():
 
 
 def pause_media():
-    if run(["playerctl", "status"], text = True, capture_output = True).stdout == "Playing":
-        run(["playerctl", "pause"], text = True, capture_output = True)
+    if run(["playerctl", "status"], text=True, capture_output=True).stdout == "Playing":
+        run(["playerctl", "pause"], text=True, capture_output=True)
 
 
 def get_wallpapers():
@@ -122,7 +117,7 @@ def get_brightness(device: int):
     elif device == 1:
         cmd = ['brightnessctl', '--device', VAR_KBDNAME]
     return int(run(cmd, text=True, capture_output=True).stdout.split('(')[1].split(')')[0].replace('%', ''))
-    
+
 
 def get_volume():
     r = run(["pactl", "list"], text=True, capture_output=True)
@@ -138,13 +133,13 @@ def log(message: str):
 
 
 def get_hour():
-    if 0 <= dt.now().minute and dt.now().minute <= 9:
+    if 0 <= dt.now().minute <= 9:
         return f"{dt.now().hour}.0{dt.now().minute}"
     return f"{dt.now().hour}.{dt.now().minute}"
 
 
-def get_hour_spec(hour_str = None):
-    if hour_str != None:
+def get_hour_spec(hour_str=None):
+    if hour_str is not None:
         return (int(hour_str.split('.')[0]) * 60) + int(hour_str.split('.')[0])
     else:
         return (dt.now().hour * 60) + dt.now().minute
@@ -154,7 +149,7 @@ def get_mode():
     low = get_hour_spec(START_DAY)
     now = get_hour_spec()
     hgh = get_hour_spec(START_NIGHT)
-    return 0 if low <= now and now < hgh else 1
+    return 0 if low <= now < hgh else 1
 
 
 def expand_vars():
@@ -164,7 +159,7 @@ def expand_vars():
     global PATH_RESC_KBDLGT
     global PATH_RESC_SCRLGT
     global PATH_RESC_LIGHTW
-    global PATH_RESC_DARKW 
+    global PATH_RESC_DARKW
     global PATH_RESC_WALLPS
     PATH_SCPT_KEYBRD = os.path.expandvars(PATH_SCPT_KEYBRD)
     PATH_SCPT_LOCKER = os.path.expandvars(PATH_SCPT_LOCKER)
@@ -195,9 +190,9 @@ def main():
             change_wallpaper(mode)
         elif sys.argv[0] == "--lock":
             log("modeset2 started with \"--lock\"")
-            set_volume(0, save_state = True)
-            set_brightness(0, 0, save_state = True)
-            set_brightness(1, 0, save_state = True)
+            set_volume(0, save_state=True)
+            set_brightness(0, 0, save_state=True)
+            set_brightness(1, 0, save_state=True)
             pause_media()
             lock()
         elif sys.argv[0] == "--unlock":
@@ -210,11 +205,11 @@ def main():
             print("Shutdown")
         elif sys.argv[0] == "--wallc":
             log("modeset started with \"--wallc\"")
-            change_wallpaper(mode, cringe = True)
+            change_wallpaper(mode, cringe=True)
         elif sys.argv[0] == "--wallp":
             log("modeset started with \"--wallp\"")
             change_wallpaper(mode)
-    elif len(sys.argv) == 0: 
+    elif len(sys.argv) == 0:
         print("modeset2 by fyb")
         print(f"local machine time:  {get_hour()}")
         print(f"current mode is:     {get_mode()}")
@@ -234,4 +229,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
