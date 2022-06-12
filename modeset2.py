@@ -208,6 +208,12 @@ def main():
         elif sys.argv[0] == "--shutdown":
             log("modeset2 started with \"--shutdown\"")
             print("Shutdown")
+        elif sys.argv[0] == "--wallc":
+            log("modeset started with \"--wallc\"")
+            change_wallpaper(mode, cringe = True)
+        elif sys.argv[0] == "--wallp":
+            log("modeset started with \"--wallp\"")
+            change_wallpaper(mode)
     elif len(sys.argv) == 0: 
         print("modeset2 by fyb")
         print(f"local machine time:  {get_hour()}")
@@ -217,7 +223,9 @@ def main():
 1. Login
 2. Lock
 3. Unlock
-4. Shutdown""")
+4. Shutdown
+5. Wallpaper (Make me cringe)
+6. Wallpaper (Panic mode on)""")
     else:
         print("Issuing more than 1 argument to modeset2 is not supported yet. Aborting...")
         exit(1)
