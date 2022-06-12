@@ -15,6 +15,10 @@ PATH_SCPT_KEYBOARD = "$HOME/scripts/keyboard"
 PATH_RESC_VOLUME = "$HOME/.config/navi/volume"
 PATH_RESC_KBDLGT = "$HOME/.config/navi/kbdlgt"
 PATH_RESC_SCRLGT = "$HOME/.config/navi/scrlgt"
+VAR_KBDNAME = "asus::kbd_backlight"
+
+async def set_brightness(device: int, value: int, save_state = False):
+    return None
 
 
 async def connect_keyboard():
@@ -45,6 +49,14 @@ async def open_subprocess(cmd: str):
     stdout, stderr = await p.communicate()
     return p.returncode, stdout, stderr
 
+
+def get_brightness(device: int):
+    if device == 0:
+        cmd = ['brightnessctl']
+    elif device == 1:
+        cmd = ['brightnessctl', '']
+    return int(run(, text=True, capture_output=True).stdout.split('(')[1].split(')')[0].replace('%', ''))
+    
 
 def get_volume():
     r = run(["pactl", "list"], text=True, capture_output=True)
