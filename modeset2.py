@@ -4,6 +4,8 @@
 #
 from datetime import datetime as dt
 from subprocess import run
+import shlex
+import subprocess
 import asyncio
 import random
 import sys
@@ -13,6 +15,7 @@ import os
 START_NIGHT = "22.30"
 START_DAY = "8.20"
 PATH_SCPT_KEYBRD = "$HOME/scripts/keyboard"
+PATH_SCPT_LOCKER = "$HOME/scripts/wait_unlock.sh"
 PATH_RESC_VOLUME = "$HOME/.config/navi/volume"
 PATH_RESC_KBDLGT = "$HOME/.config/navi/keyboard"
 PATH_RESC_SCRLGT = "$HOME/.config/navi/screen"
@@ -22,7 +25,7 @@ PATH_RESC_WALLPS = "$HOME/.config/navi/wallpapers"
 VAR_KBDNAME = "asus::kbd_backlight"
 
 
-async def set_brightness(device: int, value: int, save_state = False):
+def set_brightness(device: int, value: int, save_state = False):
     state_kbdlgt = get_brightness(1)
     state_scrlgt = get_brightness(0)
     if value == -1:
@@ -30,19 +33,19 @@ async def set_brightness(device: int, value: int, save_state = False):
             value = int(f.read())
             f.close()
     command = f"brightnessctl set {value}%" if device == 0 else f"brightnessctl --device {VAR_KBDNAME} set {value}%"
-    await open_subprocess(command)
+    open_subprocess(command)
     if save_state:
         with open(os.path.expandvars(PATH_RESC_SCRLGT if device == 0 else PATH_RESC_KBDLGT), 'w') as f:
             f.write(str(state_scrlgt if device == 0 else state_kbdlgt))
             f.close()
 
 
-async def connect_keyboard():
-    command = 'bash ' + os.path.expandvars(PATH_SCRIPT_KEYBRD)
-    await open_subprocess(command)
+def connect_keyboard():
+    command = 'bash ' + PATH_SCPT_KEYBRD
+    open_subprocess(command)
 
 
-async def set_volume(value: int, save_state = False):
+def set_volume(value: int, save_state = False):
     state = get_volume()
     if value == -1:
         with open(os.path.expandvars(PATH_RESC_VOLUME), 'r') as f:
@@ -50,23 +53,21 @@ async def set_volume(value: int, save_state = False):
             f.close()
     value = 100 if value > 100 else 0 if value < 0 else value
     command = f'pactl set-sink-volume @DEFAULT_SINK@ {value}%'
-    await open_subprocess(command)
+    open_subprocess(command)
     if save_state:
         with open(os.path.expandvars(PATH_RESC_VOLUME), 'w') as f:
             f.write(str(state))
             f.close()
 
 
-async def open_subprocess(cmd: str):
-    p = await asyncio.create_subprocess_shell(
-            cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
-    stdout, stderr = await p.communicate()
-    return p.returncode, stdout, stderr
+def open_subprocess(cmd: str):
+    p = subprocess.Popen( 
+            shlex.split(cmd),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
 
 
-async def change_wallpaper(mode: int, cringe = False):
+def change_wallpaper(mode: int, cringe = False):
     if not os.path.exists(PATH_RESC_WALLPS):
         get_wallpapers()    
     region = f"{mode}{1 if cringe else 0}"
@@ -76,9 +77,14 @@ async def change_wallpaper(mode: int, cringe = False):
     list = file.split(region)[1].split("EOR")[0].lstrip('\n').splitlines()
     wallpaper = random.choice(list)
     command = f"wal -i {wallpaper}"
-    await open_subprocess(command)
+    open_subprocess(command)
     command = f"betterlockscreen -u {wallpaper}"
-    await open_subprocess(command)
+    open_subprocess(command)
+
+
+def lock():
+    open_subprocess(f"bash {PATH_SCPT_LOCKER}")
+    open_subprocess(f"betterlockscreen --lock --off 5")
 
 
 def pause_media():
@@ -153,6 +159,7 @@ def get_mode():
 
 def expand_vars():
     global PATH_SCPT_KEYBRD
+    global PATH_SCPT_LOCKER
     global PATH_RESC_VOLUME
     global PATH_RESC_KBDLGT
     global PATH_RESC_SCRLGT
@@ -160,6 +167,7 @@ def expand_vars():
     global PATH_RESC_DARKW 
     global PATH_RESC_WALLPS
     PATH_SCPT_KEYBRD = os.path.expandvars(PATH_SCPT_KEYBRD)
+    PATH_SCPT_LOCKER = os.path.expandvars(PATH_SCPT_LOCKER)
     PATH_RESC_VOLUME = os.path.expandvars(PATH_RESC_VOLUME)
     PATH_RESC_KBDLGT = os.path.expandvars(PATH_RESC_KBDLGT)
     PATH_RESC_SCRLGT = os.path.expandvars(PATH_RESC_SCRLGT)
@@ -172,27 +180,31 @@ def main():
     sys.argv.remove(sys.argv[0])
     sys.argv.reverse()
     expand_vars()
+    mode = get_mode()
     if len(sys.argv) == 1:
         if sys.argv[0] == "--login":
             log("modeset2 started with \"--login\"")
-            asyncio.run(connect_keyboard())
-            asyncio.run(set_volume(0))
+            connect_keyboard()
+            set_volume(0)
             if mode == 0:
                 set_brightness(0, 70)
                 set_brightness(1, 0)
             else:
                 set_brightness(0, 40)
                 set_brightness(1, 100)
-            asyncio.run(change_wallpaper(mode))
+            change_wallpaper(mode)
         elif sys.argv[0] == "--lock":
             log("modeset2 started with \"--lock\"")
-            asyncio.run(set_volume(0, save_state = True))
-            asyncio.run(set_brightness(0, 0, save_state = True))
-            asyncio.run(set_brightness(1, 0, save_state = True))
+            set_volume(0, save_state = True)
+            set_brightness(0, 0, save_state = True)
+            set_brightness(1, 0, save_state = True)
             pause_media()
+            lock()
         elif sys.argv[0] == "--unlock":
             log("modeset2 started with \"--unlock\"")
-            print("Unlock")
+            set_volume(-1)
+            set_brightness(0, -1)
+            set_brightness(1, -1)
         elif sys.argv[0] == "--shutdown":
             log("modeset2 started with \"--shutdown\"")
             print("Shutdown")
