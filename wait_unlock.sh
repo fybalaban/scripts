@@ -8,7 +8,7 @@ while : ; do
     then
         sleep 5
     else
-        python $HOME/scripts/modeset2.py --unlock
+        python $HOME/scripts/modeset.py --unlock
         break
     fi
 done

@@ -9,6 +9,7 @@ import random
 import sys
 import os
 
+
 START_NIGHT = "22.30"
 START_DAY = "8.20"
 PATH_SCPT_KEYBRD = "$HOME/scripts/keyboard"
@@ -82,8 +83,7 @@ def lock():
 
 
 def pause_media():
-    if do_query("playerctl status") == "Playing":
-        run_command("playerctl pause")
+    run_command("playerctl pause")
 
 
 def get_wallpapers():
