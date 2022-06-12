@@ -68,7 +68,7 @@ async def open_subprocess(cmd: str):
 
 async def change_wallpaper(mode: int, cringe = False):
     if not os.path.exists(PATH_RESC_WALLPS):
-        get_wallpapers():    
+        get_wallpapers()    
     region = f"{mode}{1 if cringe else 0}"
     with open(PATH_RESC_WALLPS, 'r') as f:
         file = f.read()
@@ -76,6 +76,11 @@ async def change_wallpaper(mode: int, cringe = False):
     list = file.split(region)[1].split("EOR")[0].lstrip('\n').splitlines()
     command = f"wal -i {random.choice(list)}"
     await open_subprocess(command)
+
+
+def pause_media():
+    if run(["playerctl", "status"], text = True, capture_output = True).stdout == "Playing":
+        run(["playerctl", "pause"], text = True, capture_output = True)
 
 
 def get_wallpapers():
@@ -181,6 +186,7 @@ def main():
             asyncio.run(set_volume(0, save_state = True))
             asyncio.run(set_brightness(0, 0, save_state = True))
             asyncio.run(set_brightness(1, 0, save_state = True))
+            pause_media()
         elif sys.argv[0] == "--unlock":
             log("modeset2 started with \"--unlock\"")
             print("Unlock")
