@@ -3,11 +3,40 @@
 #       Ferit Yiğit BALABAN <f@fybx.dev>, 2022
 #
 from datetime import datetime as dt
+from subprocess import run
+import asyncio
 import sys
+import os
 
 
 START_NIGHT = "22.30"
 START_DAY = "8.20"
+
+
+async def connect_keyboard():
+    command = 'bash ' + os.path.expandvars("$HOME/scripts/keyboard")
+    await open_subprocess(command)
+
+
+async def set_volume(value: int, save_state = False):
+    value = 100 if value > 100 else 0 if value < 0 else value
+    command = f'pactl set-sink-volume @DEFAULT_SINK@ {value}'
+    await open_subprocess(command)
+
+
+async def open_subprocess(cmd: str):
+    p = await asyncio.create_subprocess_shell(
+            cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE)
+    stdout, stderr = await p.communicate()
+    return p.returncode, stdout, stderr
+
+
+def log(message: str):
+    with open(os.path.expandvars("$HOME/navi.log"), 'a') as f:
+        f.write(f"[{dt.now().strftime('%m/%d/%y-%H.%M.%S')}] {message}\n")
+        f.close()
 
 
 def get_hour():
@@ -35,12 +64,17 @@ def main():
     sys.argv.reverse()
     if len(sys.argv) == 1:
         if sys.argv[0] == "--login":
-            print("Login")
+            log("modeset2 started with \"--login\"")
+            asyncio.run(connect_keyboard())
+            asyncio.run(set_volume(0))
         elif sys.argv[0] == "--lock":
+            log("modeset2 started with \"--lock\"")
             print("Lock")
         elif sys.argv[0] == "--unlock":
+            log("modeset2 started with \"--unlock\"")
             print("Unlock")
         elif sys.argv[0] == "--shutdown":
+            log("modeset2 started with \"--shutdown\"")
             print("Shutdown")
     elif len(sys.argv) == 0: 
         print("modeset2 by fyb")
