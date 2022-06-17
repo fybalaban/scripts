@@ -66,15 +66,9 @@ def do_query(cmd: str):
 
 
 def change_wallpaper(mode: int, cringe=False):
-    if not os.path.exists(PATH_RESC_WALLPS):
-        get_wallpapers()
-    with open(PATH_RESC_WALLPS, 'r') as f:
-        file = f.read()
-        f.close()
-    wlist = file.split(f"{mode}{1 if cringe else 0}")[1].split("EOR")[0].lstrip('\n').splitlines()
-    wallpaper = random.choice(wlist)
-    run_command(f"wal -i {wallpaper}")
-    run_command(f"betterlockscreen -u {wallpaper}")
+    wallpaper = PATH_RESC_LIGHTW if mode == 0 else PATH_RESC_DARKW
+    wallpaper += "/cringe" if cringe else ""
+    run_command(f"wal --iterative -q -e -i {wallpaper}")
 
 
 def lock():
@@ -207,6 +201,9 @@ def main():
         elif sys.argv[0] == "--wallp":
             log("modeset started with \"--wallp\"")
             change_wallpaper(mode)
+        elif sys.argv[0] == "--wallu":
+            log("modeset started with \"--wallu\"")
+            get_wallpapers()
     elif len(sys.argv) == 0:
         print("modeset by fyb")
         print(f"local machine time:  {get_hour()}")
