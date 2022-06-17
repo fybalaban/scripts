@@ -2,10 +2,10 @@
 
 This repository contains Python and shell scripts that I actively develop and utilize on my GNU/Linux [(or as I've recently taken to calling it, GNU plus Linux)](https://fybx.dev/tribute.html) machine.
 
-|          | Shell Scripts                                                               | Python Scripts                                                                                                                      |
-|----------|-----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| Obsolete | [launch_searx][searx], <br/>[pi & piw][pipiw], <br/>[launch_compton.sh][lc] | [update_repos.py][updrp],                                                                                                           |
-| Active   | [volumeup.sh][vup], <br/>[launch_picom.sh][lp], <br/>[launch_polybar][lp]   | [source_polybar.py][sp], <br/>[compare.py][compy], <br/>[drun_cleaner.py][drunc], <br/>[dotman.py][dotman], <br/>[fetchpy][fetchpy] |
+|          | Shell scripts | Python scripts |
+| -------- | ------------- | -------------- |
+| Obsolete | [launch_searx][searx], [pi & piw][pipiw], [launch_compton.sh][lc] | [update_repos.py][updrp] |
+| Active   | [volumeup.sh][vup], [launch_picom.sh][lp], [launch_polybar][lp] | [source_polybar.py][sp], [compare.py][compy], [drun_cleaner.py][drunc], [dotman.py][dotman], [fetchpy][fetchpy] |
 
 [searx]: https://github.com/fybx/scripts#launch_searxsh
 [pipiw]: https://github.com/fybx/scripts#pi--piw
