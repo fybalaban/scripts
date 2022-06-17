@@ -80,30 +80,6 @@ def pause_media():
     run_command("playerctl pause")
 
 
-def get_wallpapers():
-    l0 = os.listdir(PATH_RESC_LIGHTW)
-    d0 = os.listdir(PATH_RESC_DARKW)
-    l0.remove('cringe')
-    d0.remove('cringe')
-    l0 = [PATH_RESC_LIGHTW + x + '\n' for x in l0]
-    d0 = [PATH_RESC_DARKW + x + '\n' for x in d0]
-    l1 = os.listdir(PATH_RESC_LIGHTW + "cringe/")
-    d1 = os.listdir(PATH_RESC_DARKW + "cringe/")
-    l1 = [PATH_RESC_LIGHTW + "cringe/" + x + '\n' for x in l1]
-    d1 = [PATH_RESC_DARKW + "cringe/" + x + '\n' for x in d1]
-    with open(PATH_RESC_WALLPS, 'w') as f:
-        f.write("00:\n")
-        f.writelines(l0)
-        f.write("EOR\n01:\n")
-        f.writelines(l1)
-        f.write("EOR\n10:\n")
-        f.writelines(d0)
-        f.write("EOR\n11:\n")
-        f.writelines(d1)
-        f.write("EOR")
-        f.close()
-
-
 def get_brightness(device: int):
     command = "brightnessctl" if device == 0 else f"brightnessctl --device {VAR_KBDNAME}"
     return int(do_query(command).split('(')[1].split(')')[0].replace('%', ''))
@@ -201,9 +177,6 @@ def main():
         elif sys.argv[0] == "--wallp":
             log("modeset started with \"--wallp\"")
             change_wallpaper(mode)
-        elif sys.argv[0] == "--wallu":
-            log("modeset started with \"--wallu\"")
-            get_wallpapers()
     elif len(sys.argv) == 0:
         print("modeset by fyb")
         print(f"local machine time:  {get_hour()}")
