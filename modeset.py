@@ -68,7 +68,7 @@ def do_query(cmd: str):
 def change_wallpaper(mode: int, cringe=False):
     wallpaper = PATH_RESC_LIGHTW if mode == 0 else PATH_RESC_DARKW
     wallpaper += "/cringe" if cringe else ""
-    run_command(f"wal --iterative -q -e -i {wallpaper}")
+    run_command(f"wal --iterative -qe -i {wallpaper}")
 
 
 def lock():
@@ -146,7 +146,6 @@ def main():
     if len(sys.argv) == 1:
         if sys.argv[0] == "--login":
             log("modeset started with \"--login\"")
-            connect_keyboard()
             set_volume(0)
             if mode == 0:
                 set_brightness(0, 70)
