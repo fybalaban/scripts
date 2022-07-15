@@ -28,8 +28,8 @@ def main():
     width = 100%
     height = 2.5%
     radius = 0
-    font-0 = "JetBrainsMono Nerd Font;2"
-    font-1 = "IPAGothic"
+    font-0 = "JetBrainsMono Nerd Font:pixelsize=13;2"
+    font-1 = "IPAGothic:pixelsize=13;2"
 
     background = ${{colors.background}}
     foreground = ${{colors.foreground}}
@@ -44,17 +44,27 @@ def main():
     
     separator = |
     separator-foreground = ${{colors.disabled}}
-    modules-left = xworkspaces
+    modules-left = xworkspaces music
     modules-center = arch xwindow
     modules-right = aud bat mem cpu temp wlan eth date
     cursor-click = pointer
     enable-ipc = true
    
-    ;[module/music]
-    ;type = custom/script
-    ;exec = /home/ferit/scripts/nowplaying.sh
-    ;tail = true
-    ;interval = 2
+    [module/music]
+    type = custom/script
+    exec = /home/ferit/scripts/nowplaying.sh
+    tail = true
+    interval = 2
+
+    click-left = playerctl play-pause
+    click-right = playerctl stop
+    double-click-left = playerctl next
+    double-click-right = playerctl previous
+    scroll-up = playerctl position 5+
+    scroll-down = playerctl position 5-
+    format-prefix = " "
+    format-prefix-foreground = {primary_color}
+    format =  <label>
 
     [module/arch]
     type = custom/text
@@ -82,7 +92,7 @@ def main():
     
     [module/xwindow]
     type = internal/xwindow
-    label = %title:0:31:...%
+    label = %title:0:30:…%
     
     [module/aud]
     type = internal/pulseaudio
@@ -98,7 +108,7 @@ def main():
     full-at = 100
     battery = BAT0
     adapter = ADP0
-    poll-interval = 5
+    poll-interval = 60
     
     ramp-capacity-0 = 
     ramp-capacity-1 =  
@@ -121,7 +131,8 @@ def main():
     
     format-charging = %{prc_fwrappers}<animation-charging>%{{F-}} <label-charging>
     format-discharging = %{prc_fwrappers}<ramp-capacity>%{{F-}} <label-discharging>
-    format-full = %{prc_fwrappers}%{{F-}} <label-full>
+    format-full = %{prc_fwrappers}%{{F-}}
+    ;format-full = %{prc_fwrappers}%{{F-}} <label-full>
     label-full = %percentage%%
     label-charging = %percentage%%
     label-discharging = %percentage%%
@@ -156,7 +167,7 @@ def main():
     label-connected = %essid%
     label-disconnected =
     format-connected = %{prc_fwrappers}直%{{F-}} <label-connected>
-    format-disconnected = %{prc_fwrappers}睊%{{F-}} <label-disconnected>
+    ;format-disconnected = %{prc_fwrappers}睊%{{F-}} <label-disconnected>
     
     [module/eth]
     type = internal/network
