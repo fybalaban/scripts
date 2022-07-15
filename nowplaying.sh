@@ -1,8 +1,17 @@
 #!/bin/bash
-s=$( playerctl -f '{{trunc(xesam:artist, 20)}} - {{trunc(xesam:title, 30)}}' metadata )
-if [ $? -eq 0 ]; then
-    echo "$s"
+stat=$( playerctl status )
+msg=$( playerctl -f '{{trunc(xesam:artist, 15)}} - {{trunc(xesam:title, 30)}}' metadata )
+if [ "$stat" = "Playing" ]; then
+    if [ "$msg" = " - " ]; then
+        echo "No metadata"
+    else
+        echo "$msg"
+    fi
 else
-    echo ""
+    if [ "$stat" = "Paused" ]; then
+        echo "Paused"
+    else
+        echo ""
+    fi
 fi
 exit 0
