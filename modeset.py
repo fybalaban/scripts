@@ -2,6 +2,19 @@
 #
 #       Ferit Yiğit BALABAN <f@fybx.dev>, 2022
 #
+#
+#       Description:
+#
+#       modeset.py is an wallpaper setting, volume and brightness controlling utility
+#       aimed to be used by keyboard shortcuts.
+#
+#       Dependencies:
+#
+#       - brightnessctl
+#       - pactl
+#       - playerctl
+#       - wal
+#       - betterlockscreen
 from datetime import datetime as dt
 from subprocess import run, Popen, PIPE, DEVNULL
 import shlex
@@ -143,6 +156,18 @@ def main():
     sys.argv.reverse()
     expand_vars()
     mode = get_mode()
+    if len(sys.argv) == 0:
+        print("modeset by fyb")
+        print(f"local machine time:  {get_hour()}")
+        print(f"current mode is:     {get_mode()}")
+        print(f"current sink volume: {get_volume()}")
+        print("""Available options:
+1. Login
+2. Lock
+3. Unlock
+4. Shutdown
+5. Wallpaper (Make me cringe)
+6. Wallpaper (Panic mode on)""")
     if len(sys.argv) == 1:
         if sys.argv[0] == "--login":
             log("modeset started with \"--login\"")
@@ -177,18 +202,6 @@ def main():
             log("modeset started with \"--wallp\"")
             change_wallpaper(mode)
     elif len(sys.argv) == 0:
-        print("modeset by fyb")
-        print(f"local machine time:  {get_hour()}")
-        print(f"current mode is:     {get_mode()}")
-        print(f"current sink volume: {get_volume()}")
-        print("""Available options:
-1. Login
-2. Lock
-3. Unlock
-4. Shutdown
-5. Wallpaper (Make me cringe)
-6. Wallpaper (Panic mode on)""")
-    else:
         print("Issuing more than 1 argument to modeset is not supported yet. Aborting...")
         exit(1)
     exit(0)
