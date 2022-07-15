@@ -10,7 +10,7 @@ from subprocess import run
 IMG_LOC = '/home/ferit/sources/neco.png'
 
 
-def clr(text):
+def clr(text: str):
     dump = '\u001b[30m█\u001b[31m█\u001b[32m█\u001b[33m█\u001b[34m█\u001b[35m█\u001b[36m█\u001b[37m█'
     frame = '\u001b[31m' 
     info = '\u001b[32m'
@@ -55,14 +55,14 @@ def clr(text):
                 iter = jump_to
             print(' ', end='')
         elif clr_dict.__contains__(char):
-                print(f'{clr_dict[char]}{char}\u001b[0m', end='')
+            print(f'{clr_dict[char]}{char}\u001b[0m', end='')
         else:
             print(char, end='')
         iter += 1
     print('')
 
 
-def read_until_space(text, start_at):
+def read_until_space(text: str, start_at: int):
     buffer = ''
     iterator = start_at
     while text[iterator] != ' ':
