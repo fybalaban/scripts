@@ -52,8 +52,8 @@ def main():
    
     [module/music]
     type = custom/script
-    exec = /home/ferit/scripts/nowplaying.sh
-    tail = true
+    exec = /home/ferit/scripts/nowplaying
+    tail = false
     interval = 2
 
     click-left = playerctl play-pause
