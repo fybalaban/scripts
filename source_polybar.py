@@ -28,7 +28,7 @@ def main():
     width = 100%
     height = 2.5%
     radius = 0
-    font-0 = "JetBrainsMono Nerd Font:pixelsize=13;2"
+    font-0 = "JetBrainsMono Nerd Font:pixelsize=12;2"
     font-1 = "IPAGothic:pixelsize=13;2"
 
     background = ${{colors.background}}
@@ -42,11 +42,11 @@ def main():
     padding-right = 1
     module-margin = 1
     
-    separator = |
+    ;separator = |
     separator-foreground = ${{colors.disabled}}
-    modules-left = xworkspaces music
-    modules-center = arch xwindow
-    modules-right = aud bat mem cpu temp wlan eth date
+    modules-left = arch xworkspaces xwindow 
+    modules-center = date 
+    modules-right = aud bat mem cpu temp wlan eth music 
     cursor-click = pointer
     enable-ipc = true
    
@@ -68,7 +68,7 @@ def main():
 
     [module/arch]
     type = custom/text
-    content = " "
+    content = "  "
     content-foreground = {primary_color}
     
     [module/xworkspaces]
