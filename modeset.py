@@ -23,8 +23,8 @@ import sys
 import os
 
 
-START_NIGHT = "22.30"
-START_DAY = "8.20"
+START_NIGHT = "20.00"
+START_DAY = "9.30"
 PATH_SCPT_KEYBRD = "$HOME/scripts/keyboard"
 PATH_SCPT_LOCKER = "$HOME/scripts/wait_unlock.sh"
 PATH_RESC_VOLUME = "$HOME/.config/navi/volume"
@@ -33,6 +33,7 @@ PATH_RESC_SCRLGT = "$HOME/.config/navi/screen"
 PATH_RESC_LIGHTW = "$HOME/sources/wallpapers/light/"
 PATH_RESC_DARKW = "$HOME/sources/wallpapers/dark/"
 PATH_RESC_WALLPS = "$HOME/.config/navi/wallpapers"
+PATH_RESC_LOCKWP = "$HOME/sources/wallpapers/dark/nbgqfu.jpg"
 PATH_RESC_NAVILG = "$HOME/navi.log"
 VAR_KBDNAME = "asus::kbd_backlight"
 
@@ -68,6 +69,15 @@ def set_volume(value: int, save_state=False):
         with open(os.path.expandvars(PATH_RESC_VOLUME), 'w') as f:
             f.write(str(state))
             f.close()
+
+
+def set_mouse(value: int):
+    if value == 1:
+        run_command('rivalcfg --color=#F666F5 --light-effect=breath')
+    elif value == 0:
+        run_command('rivalcfg --color=#000000')
+    elif value == 2:
+        run_command('rivalcfg -p=1000 -s=1000 -S=500')
 
 
 def run_command(cmd: str):
@@ -153,57 +163,57 @@ def expand_vars():
 
 def main():
     sys.argv.remove(sys.argv[0])
-    sys.argv.reverse()
     expand_vars()
-    mode = get_mode()
+    mode = 3 if "-dark" in sys.argv else (2 if "-light" in sys.argv else get_mode())
     if len(sys.argv) == 0:
         print("modeset by fyb")
         print(f"local machine time:  {get_hour()}")
-        print(f"current mode is:     {get_mode()}")
+        print(f"current mode is:     {'e' if mode==2 or mode==3 else ''}{mode-2}")
         print(f"current sink volume: {get_volume()}")
-        print("""Available options:
-1. Login
-2. Lock
-3. Unlock
-4. Shutdown
-5. Wallpaper (Make me cringe)
-6. Wallpaper (Panic mode on)""")
-    if len(sys.argv) == 1:
-        if sys.argv[0] == "--login":
-            log("modeset started with \"--login\"")
-            set_volume(0)
-            if mode == 0:
-                set_brightness(0, 70)
-                set_brightness(1, 0)
-            else:
-                set_brightness(0, 40)
-                set_brightness(1, 100)
-            change_wallpaper(mode)
-        elif sys.argv[0] == "--lock":
-            log("modeset started with \"--lock\"")
-            set_volume(0, save_state=True)
-            set_brightness(0, 0, save_state=True)
-            set_brightness(1, 0, save_state=True)
-            pause_media()
-            lock()
-        elif sys.argv[0] == "--unlock":
-            log("modeset started with \"--unlock\"")
-            set_volume(-1)
-            set_brightness(0, -1)
-            set_brightness(1, -1)
-        elif sys.argv[0] == "--shutdown":
-            log("modeset started with \"--shutdown\"")
-            set_brightness(0, 50)
+        exit(0)
+
+    mode = (mode - 2) if (mode == 2 or mode == 3) else mode
+    if sys.argv[0] == "--login":
+        log("modeset started with \"--login\"")
+        set_volume(0)
+        if mode == 0:
+            set_brightness(0, 70)
+            set_brightness(1, 0)
+        else:
+            set_brightness(0, 40)
             set_brightness(1, 100)
-        elif sys.argv[0] == "--wallc":
-            log("modeset started with \"--wallc\"")
-            change_wallpaper(mode, cringe=True)
-        elif sys.argv[0] == "--wallp":
-            log("modeset started with \"--wallp\"")
-            change_wallpaper(mode)
-    elif len(sys.argv) == 0:
-        print("Issuing more than 1 argument to modeset is not supported yet. Aborting...")
-        exit(1)
+        set_mouse(1)
+        change_wallpaper(mode)
+    elif sys.argv[0] == "--lock":
+        log("modeset started with \"--lock\"")
+        set_volume(0, save_state=True)
+        set_brightness(0, 0, save_state=True)
+        if mode == 1: 
+            set_brightness(1, 0, save_state=True)
+        else:
+            set_brightness(1, 1, save_state=True)
+        pause_media()
+        set_mouse(0)
+        lock()
+    elif sys.argv[0] == "--unlock":
+        log("modeset started with \"--unlock\"")
+        set_volume(-1)
+        set_brightness(0, -1)
+        set_brightness(1, -1)
+        set_mouse(1)
+    elif sys.argv[0] == "--shutdown":
+        log("modeset started with \"--shutdown\"")
+        set_brightness(0, 50)
+        set_brightness(1, 100)
+    elif sys.argv[0] == "--wallc":
+        log("modeset started with \"--wallc\"")
+        change_wallpaper(mode, cringe=True)
+    elif sys.argv[0] == "--wallp":
+        log("modeset started with \"--wallp\"")
+        change_wallpaper(mode)
+    elif sys.argv[0] == "-setl":
+        log("modeset started with \"-setl\"")
+        run_command(f"betterlockscreen -u {PATH_RESC_LOCKWP}")
     exit(0)
 
 
