@@ -211,6 +211,25 @@ def main():
 
     if exists_dir_repo:
         # local repository directory exists. Backup or deploy is possible.
+        if flag_interactive:
+            # if interactive flag was fed, ignore backup and deploy key
+            # ask user for action (backup or deploy)
+            ans = input('(B)ackup or (D)eploy is possible, select one: ')
+            if ans.lower() = 'b':
+                # interactive backup
+            elif ans.lower() = 'd':
+                # interactive deploy
+            else:
+                # ask again
+        else:
+            # continue according to set flag, XOR
+            if flag_backup and not flag_deploy:
+                # backup
+            elif flag_deploy and not flag_backup:
+                # deploy
+            else:
+                # either both flags are set OR both are unset
+                # quit script
     else:
         # local repository directory does not exist. Only deploy is possible.
 
