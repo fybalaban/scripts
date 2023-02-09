@@ -67,13 +67,21 @@ def read_deploy_list():
         dict_deploy_list = json.loads(file)
         DL_FILES = dict_deploy_list['files']
         DL_DIRS  = dict_deploy_list['dirs']
+    else:
+        create_deploy_list()
 
 
 def create_deploy_list():
     """
     Creates the default deploy_list.json in path SETTINGS.F_DEPLOY
     """
-    default = {}
+    dl_default = {
+            "files": [],
+            "dirs": ["dotman"],
+            }
+    with open(SETTINGS['F_DEPLOY'], 'w') as f:
+        f.write(json.dumps(dl_default, indent = 4))
+        f.close()
 
 
 def rrem(text: str, char: str):
