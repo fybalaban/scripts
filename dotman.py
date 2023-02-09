@@ -213,14 +213,16 @@ def main():
         # local repository directory exists. Backup or deploy is possible.
         if flag_interactive:
             # if interactive flag was fed, ignore backup and deploy key
-            # ask user for action (backup or deploy)
-            ans = input('(B)ackup or (D)eploy is possible, select one: ')
-            if ans.lower() = 'b':
+            # ask user for action (backup or deploy) 
+            while True:
+                ans = input('(B)ackup or (D)eploy is possible, select one: ').lower()
+                if ans == 'b' or ans == 'd':
+                    break
+            if ans = 'b':
                 # interactive backup
-            elif ans.lower() = 'd':
+            elif ans = 'd':
                 # interactive deploy
-            else:
-                # ask again
+
         else:
             # continue according to set flag, XOR
             if flag_backup and not flag_deploy:
