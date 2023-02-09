@@ -187,7 +187,7 @@ def main():
     WHEREAMI = rrem(sys.argv[0], '/')
     expand_settings()
 
-    local_repo_exists = os.path.exists(SETTINGS['DIR_REPO'])
+    exists_dir_repo = os.path.exists(SETTINGS['DIR_REPO'])
 
     flag_interactive = False
     flag_backup = False
@@ -208,6 +208,17 @@ def main():
             flag_help = flag_help or key == '-h' or key == '--help'
     else:
         flag_interactive = True
+
+    if exists_dir_repo:
+        # local repository directory exists. Backup or deploy is possible.
+    else:
+        # local repository directory does not exist. Only deploy is possible.
+
+
+    # ^^^ new logic ^^^
+    # 
+    # vvv old logic vvv
+    return
 
     if flag_interactive:
         print(f"dotman {VER} by ferityigitbalaban")
