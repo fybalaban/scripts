@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#       Ferit Yiğit BALABAN <f@fybx.dev>, 2022
+#       Ferit Yiğit BALABAN <f@fybx.dev>, 2023
 #
 import os.path
 from subprocess import run
@@ -11,16 +11,17 @@ from termcolor import colored, cprint
 # Modify SETTINGS dictionary to set runtime variables
 # Access values in dictionary using pre-defined names
 SETTINGS = {
-    'DOTFILES_REPOSITORY': '$HOME/repos/dotfiles',
-    'REMOTE_REPOSITORY': 'https://github.com/fybx/dotfiles',
-    'LOCAL_CONFIG': '$HOME/.config',
-    'SETUP_FILE': 'same-directory'
+    'URL_REPO': 'https://github.com/fybx/dotfiles', 
+    'DIR_REPO': '$HOME/repos/dotfiles',
+    'DIR_CONF': '$HOME/.config',
+    'F_DEPLOY': '$HOME/.config/dotman/deploy_list.json',
 }
+
 WHEREAMI = '$HOME/scripts'
-VER = 'v1.7'
+VER = 'v1.8'
 WER = 'v1.1'
 help_message = f'''
-dotman {VER} dotfiles manager by fyb
+dotman {VER} dotfiles manager by ferityigitbalaban
 
 Unrecognized keys are ignored. If every key supplied is unrecognized,
 this have the same effect as calling dotman without any key.
@@ -33,6 +34,10 @@ Keys:
 -v, --version           Shows the version and quits
 -h, --help              Shows this message and quits
 '''
+
+
+DL_FILES = []
+DL_DIRS = []
 
 
 def get_nth_key(n: int, d: dict[str, str]):
@@ -50,18 +55,25 @@ def read_file(path: str):
     return content
 
 
-def read_setup():
-    path = SETTINGS['SETUP_FILE']
-    lines = read_file(f'{WHEREAMI}setup.dtm') if path == 'same-directory' else read_file(os.path.expandvars(path))
-    lines = [line.strip() for line in lines if not line.startswith('#') and line.replace(' ', '') != '']
-    for line in lines:
-        key = line.split(':', 1)[0].rstrip()
-        value = line.split(':', 1)[1].lstrip()
-        SETTINGS[key] = value
+def read_deploy_list():
+    """
+    Reads file from SETTINGS.F_DEPLOY to get list of directories and files to deploy
+    """
+    path_deploy_list = SETTINGS['F_DEPLOY']
+    if os.path.exists(path_deploy_list):
+        with open(path_deploy_list, 'r') as f:
+            file = f.read()
+            f.close()
+        dict_deploy_list = json.loads(file)
+        DL_FILES = dict_deploy_list['files']
+        DL_DIRS  = dict_deploy_list['dirs']
 
 
-def write_setup():
-    path = f'{WHEREAMI}setup.dtm' if SETTINGS['SETUP_FILE'] == 'same-directory' else os.path.expandvars(SETTINGS['SETUP_FILE'])
+def create_deploy_list():
+    """
+    Creates the default deploy_list.json in path SETTINGS.F_DEPLOY
+    """
+    default = {}
 
 
 def rrem(text: str, char: str):
