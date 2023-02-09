@@ -11,10 +11,11 @@ from termcolor import colored, cprint
 # Modify SETTINGS dictionary to set runtime variables
 # Access values in dictionary using pre-defined names
 SETTINGS = {
-    'URL_REPO': 'https://github.com/fybx/dotfiles', 
-    'DIR_REPO': '$HOME/repos/dotfiles',
-    'DIR_CONF': '$HOME/.config',
-    'F_DEPLOY': '$HOME/.config/dotman/deploy_list.json',
+    'URL_REPO': 'https://github.com/fybx/dotfiles',         # remote repository URL
+    'SHN_REPO': 'fybx/dotfiles'                             # remote shortname
+    'DIR_REPO': '$HOME/repos/dotfiles',                     # local repository directory
+    'DIR_CONF': '$HOME/.config',                            # local .config directory
+    'F_DEPLOY': '$HOME/.config/dotman/deploy_list.json',    # path to deploy_list.json file
 }
 
 WHEREAMI = '$HOME/scripts'
@@ -172,16 +173,21 @@ def commit_then_push():
         return 0, None if code == 0 else 2, None
     return 1, None
 
+def expand_settings():
+    """
+    Expands variables used in SETTINGS
+    """
+    SETTINGS['DIR_REPO'] = os.path.expandvars(SETTINGS['DIR_REPO'])
+    SETTINGS['DIR_CONF'] = os.path.expandvars(SETTINGS['DIR_CONF'])
+    SETTINGS['F_DEPLOY'] = os.path.expandvars(SETTINGS['F_DEPLOY'])
+
 
 def main():
     global WHEREAMI
     WHEREAMI = rrem(sys.argv[0], '/')
-    read_setup()
-    SETTINGS['DOTFILES_REPOSITORY'] = os.path.expandvars(SETTINGS['DOTFILES_REPOSITORY'])
-    SETTINGS['LOCAL_CONFIG'] = os.path.expandvars(SETTINGS['LOCAL_CONFIG'])
-    remote_shortname = SETTINGS['REMOTE_REPOSITORY'].removeprefix("https://github.com/")
+    expand_settings()
 
-    local_repo_exists = os.path.exists(SETTINGS['DOTFILES_REPOSITORY'])
+    local_repo_exists = os.path.exists(SETTINGS['DIR_REPO'])
 
     flag_interactive = False
     flag_backup = False
@@ -204,7 +210,7 @@ def main():
         flag_interactive = True
 
     if flag_interactive:
-        print(f"dotman {VER} by fyb, 2022")
+        print(f"dotman {VER} by ferityigitbalaban")
         if not local_repo_exists:
             print(colored('Important warning:', 'red'), 'dotfiles repository cannot be located at: ',
                   colored(SETTINGS['DOTFILES_REPOSITORY'], 'yellow'))
