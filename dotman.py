@@ -231,9 +231,17 @@ def main():
                 # deploy
             else:
                 # either both flags are set OR both are unset
-                # quit script
+                exit(0)
     else:
         # local repository directory does not exist. Only deploy is possible.
+        # if interactive, ask for deploy, else if deploy flag is set, deploy, otherwise quit.
+        if flag_interactive:
+            # ask for deploy
+            return
+        elif flag_deploy:
+            # deploy
+            return
+        quit(0)
 
 
     # ^^^ new logic ^^^
