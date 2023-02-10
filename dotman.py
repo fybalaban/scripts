@@ -173,6 +173,18 @@ def commit_then_push():
         return 0, None if code == 0 else 2, None
     return 1, None
 
+
+def deploy():
+    """
+    Kindly executes the steps to get a up-to-date local repository, 
+    deploy (copy) files and directories to the local config directory.
+    """
+    # if no local repo
+        # go to ../local_repo and clone remote_url
+    # go to local_repo and exec git fetch && git pull
+    # copy files & directories
+
+
 def expand_settings():
     """
     Expands variables used in SETTINGS
