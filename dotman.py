@@ -236,13 +236,14 @@ def main():
         # local repository directory does not exist. Only deploy is possible.
         # if interactive, ask for deploy, else if deploy flag is set, deploy, otherwise quit.
         if flag_interactive:
-            # ask for deploy
-            return
-        elif flag_deploy:
-            # deploy
-            return
-        quit(0)
-
+            print(f"local repository directory for {SETTINGS.SHN_REPO} does not exist")
+            print("You can clone and deploy this repository to local config directory")
+            ans = input("Continue (y/N): ").lower()
+            if ans == "n" and not ans == "y":
+                exit(0)
+            if not flag_interactive and not flag_deploy:
+                exit(0)
+            # run deploy
 
     # ^^^ new logic ^^^
     # 
