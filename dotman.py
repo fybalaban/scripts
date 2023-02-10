@@ -2,7 +2,8 @@
 #
 #       Ferit Yiğit BALABAN <f@fybx.dev>, 2023
 #
-import os.path
+import os
+import shlex
 from subprocess import run
 import sys
 from datetime import datetime as dt
@@ -196,9 +197,11 @@ def deploy():
     Kindly executes the steps to get a up-to-date local repository, 
     deploy (copy) files and directories to the local config directory.
     """
-    # if no local repo
-        # go to ../local_repo and clone remote_url
-    # go to local_repo and exec git fetch && git pull
+    if not os.path.exists(SETTINGS.DIR_REPO):
+        r = SETTINGS.DIR_REPO
+        r.removesuffix("/")[:r.removesuffix("/").rindex("/")]
+        run(shlex.split(f"/usr/bin/git clone {SETTINGS[URL_REPO]}"), text=True, cwd=r)
+    run(shlex.split("/usr/bin/git pull"))
     # copy files & directories
 
 
