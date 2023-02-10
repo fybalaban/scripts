@@ -125,8 +125,11 @@ def grab_dotfiles():
     return code == 0, code
 
 
-def copy(source, dest):
-    proc(f'cp -av {source} {dest}')
+def copy(source, dest, interactive=False):
+    if interactive:
+        run(shlex.split(f"cp -av {source} {dest}"))
+        return
+    run(shlex.split(f"cp -a {source} {dest}"))
 
 
 def special_copy(source, dest):
