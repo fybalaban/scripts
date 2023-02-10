@@ -201,8 +201,11 @@ def deploy():
         r = SETTINGS.DIR_REPO
         r.removesuffix("/")[:r.removesuffix("/").rindex("/")]
         run(shlex.split(f"/usr/bin/git clone {SETTINGS[URL_REPO]}"), text=True, cwd=r)
-    run(shlex.split("/usr/bin/git pull"))
-    # copy files & directories
+    run(shlex.split("/usr/bin/git pull"), text=True, cwd=r)
+    for files in DL_FILES:
+        copy(files)
+    for dirs in DL_DIRS:
+        copy(dirs)
 
 
 def expand_settings():
