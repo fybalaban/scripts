@@ -174,6 +174,23 @@ def commit_then_push():
     return 1, None
 
 
+def backup():
+    """
+    Aggresively executes the steps to do checksum comparisons between local
+    config directory and local repository to decide which files to copy,
+    copy only changed files, commit and push to remote.
+    """
+    # get list of files and directories to change (F_DEPLOY)
+    # get list of checksums of (F_DEPLOY), compute and compare with local repository
+    # if checksum(local_config) != checksum(local_repo)
+        # copy local_config to local_repo
+    # if exists(local_config in local_repo) is False
+        # copy local_config to local_repo
+    # if exists(F_DEPLOY) but not in local_config
+        # warn for lost file, user must either copy from local_repo to local_config or delete from F_DEPLOY
+    # exec git commit -m "[message]" && git push
+
+
 def deploy():
     """
     Kindly executes the steps to get a up-to-date local repository, 
