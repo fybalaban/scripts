@@ -125,8 +125,6 @@ def expand_settings():
 
 
 def main():
-    global WHEREAMI
-    WHEREAMI = rrem(sys.argv[0], '/')
     expand_settings()
 
     exists_dir_repo = os.path.exists(SETTINGS['DIR_REPO'])
@@ -150,31 +148,23 @@ def main():
         flag_interactive = True
 
     if exists_dir_repo:
-        # local repository directory exists. Backup or deploy is possible.
-        if flag_interactive:
-            # if interactive flag was fed, ignore backup and deploy key
-            # ask user for action (backup or deploy) 
+        if flag_interactive: 
             while True:
                 ans = input('(B)ackup or (D)eploy is possible, select one: ').lower()
                 if ans == 'b' or ans == 'd':
                     break
             if ans = 'b':
-                # interactive backup
+                backup(flag_interactive)
             elif ans = 'd':
-                # interactive deploy
-
+                deploy(flag_deploy)
         else:
-            # continue according to set flag, XOR
             if flag_backup and not flag_deploy:
-                # backup
+                backup(flag_interactive)
             elif flag_deploy and not flag_backup:
-                # deploy
+                deploy(flag_interactive)
             else:
-                # either both flags are set OR both are unset
                 exit(0)
     else:
-        # local repository directory does not exist. Only deploy is possible.
-        # if interactive, ask for deploy, else if deploy flag is set, deploy, otherwise quit.
         if flag_interactive:
             print(f"local repository directory for {SETTINGS.SHN_REPO} does not exist")
             print("You can clone and deploy this repository to local config directory")
@@ -183,7 +173,7 @@ def main():
                 exit(0)
             if not flag_interactive and not flag_deploy:
                 exit(0)
-            # run deploy
+            deploy(flag_interactive)
 
 
 if __name__ == '__main__':
