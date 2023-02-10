@@ -192,7 +192,7 @@ def backup():
     # exec git commit -m "[message]" && git push
 
 
-def deploy():
+def deploy(interactive=False):
     """
     Kindly executes the steps to get a up-to-date local repository, 
     deploy (copy) files and directories to the local config directory.
@@ -200,12 +200,16 @@ def deploy():
     if not os.path.exists(SETTINGS.DIR_REPO):
         r = SETTINGS.DIR_REPO
         r.removesuffix("/")[:r.removesuffix("/").rindex("/")]
+        if interactive:
+            print(f"Local repository at {SETTINGS['DIR_REPO']} wasn't found. Cloning at {r}")
         run(shlex.split(f"/usr/bin/git clone {SETTINGS[URL_REPO]}"), text=True, cwd=r)
+    if interactive:
+        print("Pulling changes")
     run(shlex.split("/usr/bin/git pull"), text=True, cwd=r)
     for file in DL_FILES:
-        copy(files)
+        copy(files, interactive=interactive)
     for directory in DL_DIRS:
-        copy(directory)
+        copy(directory, interactive=interactive)
 
 
 def expand_settings():
