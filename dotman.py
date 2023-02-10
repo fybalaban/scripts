@@ -6,8 +6,6 @@ import os
 import shlex
 from subprocess import run
 import sys
-from datetime import datetime as dt
-from termcolor import colored, cprint
 
 # Modify SETTINGS dictionary to set runtime variables
 # Access values in dictionary using pre-defined names
@@ -19,9 +17,7 @@ SETTINGS = {
     'F_DEPLOY': '$HOME/.config/dotman/deploy_list.json',    # path to deploy_list.json file
 }
 
-WHEREAMI = '$HOME/scripts'
 VER = 'v1.8'
-WER = 'v1.1'
 help_message = f'''
 dotman {VER} dotfiles manager by ferityigitbalaban
 
@@ -30,7 +26,6 @@ this have the same effect as calling dotman without any key.
  
 Keys:
 -i, --interactive       Interactively backup or deploy dotfiles. Not supplying any key will result in interactive mode.
--s, --setup-dotman      Interactively set variables (DOTFILES_REPOSITORY, LOCAL_CONFIG, etc.) for your dotman setup.
 -b, --backup            Backup your dotfiles. Doesn't require user assistance but errors may occur.
 -d, --deploy            Deploy your dotfiles. Doesn't require user assistance but errors may occur.
 -v, --version           Shows the version and quits
