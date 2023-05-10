@@ -7,7 +7,7 @@ import os
 from subprocess import run
 
 
-IMG_LOC = '/home/ferit/sources/neco.png'
+IMG_LOC = '/home/ferit/shoka/500-599 pictures/505 clipart/windowschan_s.png'
 
 
 def clr(text: str):
@@ -27,9 +27,9 @@ def clr(text: str):
         '': info,
         '': info,
         '': info,
-        '': info,
+        '': info,
         '': info,
-        '': info,
+        '󰢮': info,
         '': info,
         '': info,
         'ferit@navi': title,
@@ -108,22 +108,23 @@ def main():
 │  {distro_name}│
 │  {kernel_version}│
 │  {shell_name}│
-│  {package_count}│
+│  {package_count}│
 ├──────── Hardware ────────┤
 │  AMD Ryzen 7 5800H      │
-│  NV GeForce RTX3050 Ti  │
+│ 󰢮 NV GeForce RTX3050 Ti  │
 │  {memory_usage}│
 │  {uptime}│
 ╰──────────────────────────╯
 '''
     
     txt_padded = ''
-    img_width = 15
+    img_width = 16
     line_count = 0 
     for line in txt.splitlines():
         txt_padded += ((' ' * img_width) + line + '\n')
         line_count += 1
-    run(['/usr/bin/kitty', 'icat', '--align', 'left', IMG_LOC])
+    print('')
+    run(['/usr/bin/kitty', 'icat', '--mirror', 'horizontal', '--align', 'left', IMG_LOC])
     run(['printf', "\e[%sA\e[999999D", str(line_count)])
     clr(txt_padded)
 
