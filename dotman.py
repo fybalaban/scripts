@@ -148,9 +148,9 @@ def main():
                 ans = input('(B)ackup or (D)eploy is possible, select one: ').lower()
                 if ans == 'b' or ans == 'd':
                     break
-            if ans = 'b':
+            if ans == 'b':
                 backup(flag_interactive)
-            elif ans = 'd':
+            elif ans == 'd':
                 deploy(flag_deploy)
         else:
             if flag_backup and not flag_deploy:
