@@ -161,7 +161,7 @@ def main():
                 exit(0)
     else:
         if flag_interactive:
-            print(f"local repository directory for {SETTINGS.SHN_REPO} does not exist")
+            print(f"local repository directory for {SETTINGS['SHN_REPO']} does not exist")
             print("You can clone and deploy this repository to local config directory")
             ans = input("Continue (y/N): ").lower()
             if ans == "n" and not ans == "y":
