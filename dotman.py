@@ -11,8 +11,8 @@ import sys
 # Access values in dictionary using pre-defined names
 SETTINGS = {
     'URL_REPO': 'https://github.com/fybx/dotfiles',         # remote repository URL
-    'SHN_REPO': 'fybx/dotfiles'                             # remote shortname
-    'DIR_REPO': '$HOME/repos/dotfiles',                     # local repository directory
+    'SHN_REPO': 'fybx/dotfiles',                            # remote shortname
+    'DIR_REPO': '$HOME/shoka/300-399 repos/dotfiles',                     # local repository directory
     'DIR_CONF': '$HOME/.config',                            # local .config directory
     'F_DEPLOY': '$HOME/.config/dotman/deploy_list.json',    # path to deploy_list.json file
 }
