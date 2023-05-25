@@ -1,26 +1,35 @@
+/*
+ *      Ferit Yiğit BALABAN,    <fybalaban@fybx.dev>
+ *      nowplaying.rs           2023
+ */
+
 use std::process::Command;
 
 fn main() {
-    let output0 = Command::new("/usr/bin/playerctl")
+    let output0 = Command::new("playerctl")
                      .arg("status")
                      .output()
                      .expect("err: call playerctl status");
 
-
     let status = String::from_utf8_lossy(&output0.stdout);
 
-    if status == "Playing\n" {
-        let output1 = Command::new("/usr/bin/playerctl")
+    match status.trim() {
+        "Playing" => {
+            let output1 = Command::new("playerctl")
                               .arg("-f")
-                              .arg("'{{trunc(xesam:artist, 15)}} - {{trunc(xesam:title,     30)}}'")
+                              .arg("{{trunc(xesam:artist, 15)}} - {{trunc(xesam:title, 30)}}")
                               .arg("metadata")
                               .output()
                               .expect("err: call playerctl metadata");
-        let music = &String::from_utf8(output1.stdout).unwrap();
-        println!("{}", &music[1..music.len() - 2]);
-    } else if status == "Paused\n" {
-        println!("Paused\n");
-    } else {
-        println!("");
+            let music = String::from_utf8(output1.stdout).unwrap();
+            let music = music.replace("&", "&amp;");
+            println!("{}", music);
+        }
+        "Paused" => {
+            println!("Paused");
+        }
+        _ => {
+            println!("");
+        }
     }
 }
