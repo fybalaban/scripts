@@ -11,7 +11,7 @@
 #       Dependencies:
 #
 #       - brightnessctl
-#       - pactl
+#       - pamixer 
 #       - playerctl
 #       - wal
 #       - betterlockscreen
@@ -64,7 +64,7 @@ def set_volume(value: int, save_state=False):
             value = int(f.read())
             f.close()
     value = 100 if value > 100 else 0 if value < 0 else value
-    run_command(f'pactl set-sink-volume @DEFAULT_SINK@ {value}%')
+    run_command(f'pamixer --set-volume {value}')
     if save_state:
         with open(os.path.expandvars(PATH_RESC_VOLUME), 'w') as f:
             f.write(str(state))
@@ -109,10 +109,7 @@ def get_brightness(device: int):
 
 
 def get_volume():
-    r = do_query("pactl list")
-    for x in r.split("Sink #0")[1].split("Base Volume:")[0].split(' '):
-        if '%' in x:
-            return int(x.replace('%', ''))
+    return int(do_query("pamixer --get-volume"))
 
 
 def log(message: str):
