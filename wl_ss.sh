@@ -4,5 +4,5 @@
 #
 #       Select an area with slurp, ss with grim 
 #       and copy to clipboard.
-export GRIM_DEFAULT_DIR="$HOME/items/ss"
+export GRIM_DEFAULT_DIR="$HOME/shoka/swap/screenshots"
 grim -g "$( slurp )" - | wl-copy --type image/png
