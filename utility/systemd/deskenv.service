@@ -1,0 +1,6 @@
+[Unit]
+Description=Switch between dark and light mode service
+
+[Service]
+Type=oneshot
+ExecStart=/home/ferit/scripts/utility/deskenv.sh
