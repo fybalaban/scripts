@@ -3,7 +3,7 @@
 #       Ferit Yiğit BALABAN <fybalaban@fybx.dev>, 2023
 #
 EXCLUDE_FILE="$HOME/.backupexclude"
-FILE="$HOME-$( date +'%y%m%d' ).tar.gz)"
+FILE="$HOME-$( date +'%y%m%d' ).tar.gz"
 USER="$( whoami )"
 
 echo "Hello, $USER"
