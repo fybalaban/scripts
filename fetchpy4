@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+#
+#       Ferit Yiğit BALABAN <fyb@fybx.dev>, 2024
+#
+#       fetchpy, fetch script alternative to neofetch
+#       revision 4
+import os
+from subprocess import run
+
+
+def print_colored(text: str) -> None:
+    frame = '\u001b[31m'
+    info = '\u001b[32m'
+    title = '\u001b[33m'
+    clr_dict = {'╭': frame, '╰': frame, '╯': frame, '─': frame, '╮': frame, '│': frame,
+                '': info, '': info, '': info, '': info, '': info, '󰢮': info, '': info, '': info,
+                'ferit@navi': title,
+                'Hardware': ''}
+    i = 0
+    while i < len(text):
+        char = text[i]
+        peekable = i < len(text) - 1
+        peek = text[i + 1] if peekable else ' '
+
+        if char == ' ':
+            if peekable and peek != ' ' and peek not in clr_dict:
+                print(' ', end='')
+                word, jump_to = read_until_space(text, start_at=i + 1)
+                if word in clr_dict:
+                    print(f'{clr_dict[word]}{word}\u001b[0m', end='')
+                else:
+                    print(word, end='')
+                i = jump_to
+            print(' ', end='')
+        elif char in clr_dict:
+            print(f'{clr_dict[char]}{char}\u001b[0m', end='')
+        else:
+            print(char, end='')
+        i += 1
+    print('')
+
+
+def read_until_space(text: str, start_at: int):
+    buffer = ''
+    iterator = start_at
+    while text[iterator] != ' ':
+        buffer += text[iterator]
+        iterator += 1
+    next_space_at = iterator
+    return buffer, next_space_at
+
+
+def main():
+    padding_count = 17
+
+    distro_name = 'Arch GNU+Linux'
+    distro_name = distro_name.ljust(padding_count, ' ')
+
+    kernel_version = str(os.uname().release)
+    kernel_version = kernel_version.ljust(padding_count, ' ')
+
+    installed_packages = run(['pacman', '-Q'], text=True, capture_output=True).stdout.splitlines()
+    shell_name = 'fish'
+    for _ in installed_packages:
+        if shell_name in _:
+            shell_name = _.removesuffix('\n').ljust(padding_count, ' ')
+    package_count = str(len(installed_packages)).ljust(padding_count, ' ')
+    total_mem, used_mem, _, _, _, _ = map(int, os.popen('free -m').readlines()[1].split()[1:])
+    def rnd(x): return round(x, 1)
+    mem_usage = f'{rnd(used_mem / 1024)} GB / {rnd(total_mem / 1024)} GB'.ljust(padding_count, ' ')
+
+    with open('/proc/uptime', 'r', encoding='utf8') as file:
+        uptime_seconds = float(file.readline().split()[0])
+        file.close()
+    if uptime_seconds < 60:
+        uptime = str(uptime_seconds).split('.', maxsplit=1)[0] + ' seconds'
+    elif uptime_seconds < 3600:
+        number = str(uptime_seconds / 60).split('.', maxsplit=1)[0]
+        uptime = f'{number} minute' if number == '1' else f'{number} minutes'
+    else:
+        number = str(uptime_seconds / 3600).split('.', maxsplit=1)[0]
+        uptime = f'{number} hour' if number == '1' else f'{number} hours'
+    uptime = uptime.ljust(padding_count, ' ')
+
+    txt = \
+        f"""       .        ╭──── ferit@navi ────╮
+      / \\       │  {distro_name}│
+     /   \\      │  {kernel_version}│
+    /^.   \\     │  {shell_name}│
+   /  .-.  \\    │  {package_count}│
+  /  (   ) _\\   │  {mem_usage}│
+ / _.~   ~._^\\  │  {uptime}│
+/.^         ^.\\ ╰────────────────────╯
+"""
+
+    print_colored(txt)
+
+
+if __name__ == '__main__':
+    main()
