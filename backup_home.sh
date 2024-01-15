@@ -3,6 +3,7 @@
 #       Ferit Yiğit BALABAN <fybalaban@fybx.dev>, 2023
 #
 EXCLUDE_FILE="$HOME/.backupexclude"
+EXPORT_LOCATION="$HOME/Downloads"
 FILE="$HOME-$( date +'%y%m%d' ).tar.gz"
 USER="$( whoami )"
 
@@ -16,4 +17,5 @@ sudo tar --exclude-from="$EXCLUDE_FILE" \
   --gzip --file "$FILE" "$HOME"
 
 sudo chown "$USER":"$USER" "$FILE"
+mv "$FILE" "$EXPORT_LOCATION"
 
