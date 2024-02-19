@@ -3,9 +3,10 @@
 #       Ferit Yiğit BALABAN <fyb@fybx.dev>, 2024
 #
 #       fetchpy, fetch script alternative to neofetch
-#       revision 5
+#       revision 6
 import os
-from subprocess import run
+import sys
+import subprocess as sp
 
 
 def print_pipeline(text):
@@ -67,28 +68,45 @@ def read_until_space(text, start_at):
     return buffer, next_space_at
 
 
+def find_username():
+    return sp.run(['whoami'], text=True, capture_output=True).stdout[0:-1]
+
+
+def find_hostname():
+    return sp.run(['uname', '-n'], text=True, capture_output=True).stdout[0:-1]
+
+
+def find_login_shell(username):
+    toGrep = sp.Popen(['cat', '/etc/passwd'], stdout=sp.PIPE)
+    toSplit = sp.check_output(('grep', f'{username}'), stdin=toGrep.stdout)
+    toGrep.wait()
+    return toSplit.decode(sys.stdout.encoding)[0:-1].split(':')[-1]
+
+
 def main():
-    padding_count = 17
+    props = []
+    _username = find_username()
+    # _hostname = find_hostname()
+    _login_shell = find_login_shell(_username).split('/')[-1]
 
-    distro_name = 'Arch GNU+Linux'
-    distro_name = distro_name.ljust(padding_count, ' ')
+    props.append('Arch GNU+Linux') # distro_name
+    props.append(os.uname().release) #kernel_version
 
-    kernel_version = str(os.uname().release)
-    kernel_version = kernel_version.ljust(padding_count, ' ')
-
-    installed_packages = run(['pacman', '-Q'], text=True, capture_output=True).stdout.splitlines()
-    shell_name = 'fish'
+    installed_packages = sp.run(['pacman', '-Q'], text=True, capture_output=True).stdout.splitlines()
     for _ in installed_packages:
-        if shell_name in _:
-            shell_name = _.removesuffix('\n').ljust(padding_count, ' ')
-    package_count = str(len(installed_packages)).ljust(padding_count, ' ')
+        if _login_shell in _:
+            props.append(_.removesuffix('\n')) # shell_name
+    
+    props.append(str(len(installed_packages))) # package_count
+    
     total_mem, used_mem, _, _, _, _ = map(int, os.popen('free -m').readlines()[1].split()[1:])
     def rnd(x): return round(x, 1)
-    mem_usage = f'{rnd(used_mem / 1024)} GB / {rnd(total_mem / 1024)} GB'.ljust(padding_count, ' ')
+    props.append(f'{rnd(used_mem / 1024)} GB / {rnd(total_mem / 1024)} GB') # mem_usage 
 
     with open('/proc/uptime', 'r', encoding='utf8') as file:
         uptime_seconds = float(file.readline().split()[0])
         file.close()
+    
     if uptime_seconds < 60:
         uptime = str(uptime_seconds).split('.', maxsplit=1)[0] + ' seconds'
     elif uptime_seconds < 3600:
@@ -97,17 +115,24 @@ def main():
     else:
         number = str(uptime_seconds / 3600).split('.', maxsplit=1)[0]
         uptime = f'{number} hour' if number == '1' else f'{number} hours'
-    uptime = uptime.ljust(padding_count, ' ')
+    props.append(uptime)
 
+    padding_count = 10
+    for prop in props:
+        if len(prop) > padding_count:
+            padding_count = len(prop) + 1
+    for i in range(0, len(props)):
+        props[i] = props[i].ljust(padding_count, ' ')
+    
     txt = \
-        f"""       .        ╭──── ferit@navi ────╮
-      / \\       │  {distro_name}│
-     /   \\      │  {kernel_version}│
-    /^.   \\     │  {shell_name}│
-   /  .-.  \\    │  {package_count}│
-  /  (   ) _\\   │  {mem_usage}│
- / _.~   ~._^\\  │  {uptime}│
-/.^         ^.\\ ╰────────────────────╯
+        f"""       .        ╭───── ferit@navi ─────╮
+      / \\       │  {props[0]}│
+     /   \\      │  {props[1]}│
+    /^.   \\     │  {props[2]}│
+   /  .-.  \\    │  {props[3]}│
+  /  (   ) _\\   │  {props[4]}│
+ / _.~   ~._^\\  │  {props[5]}│
+/.^         ^.\\ ╰──────────────────────╯
 """
 
     print_pipeline(txt)
