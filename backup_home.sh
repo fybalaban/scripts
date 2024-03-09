@@ -13,7 +13,7 @@ echo "with everything      : $( du -sh "$HOME" )"
 echo "file will be saved as $FILE"
 
 sudo tar --exclude-from="$EXCLUDE_FILE" \
-  --create --verbose --preserve-permissions \
+  --create --preserve-permissions \
   --gzip --file "$FILE" "$HOME"
 
 sudo chown "$USER":"$USER" "$FILE"
