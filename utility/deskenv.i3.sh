@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+#
+#       Ferit Yiğit BALABAN,        <fyb@fybx.dev>
+#       desktop environment,        2024
+#
+
+NIGHT_START="17:00"
+DAY_START="09:30"
+MODE_FILE="$HOME/.config/navi/desktop_mode"
+LOG="$HOME/.config/navi/deskenv.log"
+FIREFOX="$HOME/.mozilla/firefox/pb8ar5xe.default-release/chrome"
+
+night=$(awk -F: '{print $1 * 60 + $2}' <<< "$NIGHT_START")
+day=$(awk -F: '{print $1 * 60 + $2}' <<< "$DAY_START")
+current_time=$(awk -F: '{print $1 * 60 + $2}' <<< "$(date +%H:%M)")
+current_dir=$(dirname "${BASH_SOURCE[0]}")
+
+file_w="$HOME/.config/navi/img_background"
+file_wl="$HOME/.config/navi/img_background_light"
+file_wd="$HOME/.config/navi/img_background_dark"
+
+# startHyprpaper() {
+#     if ! pgrep "hyprpaper" >/dev/null; then
+#         hyprpaper >/dev/null & disown
+#         sleep 1 && startHyprpaper
+#     fi
+# };
+
+isDaytime() {
+    if ((current_time >= day && current_time < night)); then
+        return 0
+    else
+        return 1
+    fi
+};
+
+# setWallpaperSwww() {
+#     types=("left" "right" "top" "bottom" "wipe" "wave" "grow" "outer")
+#     ltypes=${#types[@]}
+#     rindex=$((RANDOM % ltypes))
+#     rtype=${types[rindex]}
+# 
+#     swww img --transition-type "$rtype" --transition-pos 1,1 --transition-step 90 "$file_w"
+# }
+
+runForDay() {
+    echo "It's day time. Running day time script."
+    echo "light" > "$MODE_FILE"
+    cp "$FIREFOX/userChrome.l.css" "$FIREFOX/userChrome.css"
+
+    gsettings set org.gnome.desktop.interface gtk-theme "WhiteSur-Light-blue"
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
+    bash "$current_dir/toggle_vscode_theme.sh" light
+
+    if [ "$pass" != "nobright" ]; then
+        brightnessctl -qd 'asus::kbd_backlight' set 0
+        brightnessctl -q set 35%
+    fi
+}
+
+runForNight() {
+    echo "It's night time. Running night time script."
+    echo "dark" > "$MODE_FILE"
+    cp "$FIREFOX/userChrome.d.css" "$FIREFOX/userChrome.css"
+
+    gsettings set org.gnome.desktop.interface gtk-theme 'WhiteSur-Dark-blue'
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+    bash "$current_dir/toggle_vscode_theme.sh" dark
+
+    if [ "$pass" != "nobright" ]; then
+        brightnessctl -qd 'asus::kbd_backlight' set 33%
+        brightnessctl -q set 10%
+    fi
+}
+
+wal -c 2> "$LOG"
+
+if ! [ "$1" == "nobright" ]; then
+    pass="normal"
+else
+    pass="nobright"
+fi
+
+if [ "$2" == "dark" ]; then
+    runForNight 
+elif [ "$2" == "light" ]; then
+    runForDay
+elif [ "$2" == "toggle" ]; then
+    last_mode=$(cat "$MODE_FILE")
+    if [ "$last_mode" == "dark" ]; then
+        runForDay
+    else
+        runForNight
+    fi
+else
+    if isDaytime; then
+        runForDay
+    else
+        runForNight
+    fi
+fi
+
