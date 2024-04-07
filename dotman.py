@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#       Ferit Yiğit BALABAN <f@fybx.dev>, 2023
+#       Ferit Yiğit BALABAN <fyb@fybx.dev>, 2024
 #
 import os
 import shlex
@@ -174,3 +174,18 @@ def main():
 if __name__ == '__main__':
     main()
 
+# Description
+# dotman is a simple dotfiles manager that can be used to backup and deploy dotfiles.
+# 
+# It manages a git repository to deploy a list of files and directories to 
+# the local .config directory. When the backup command is executed, it 
+# copies the files and directories in the deploy_list.json to the 
+# local repository. git is used to keep track of changes.
+#
+# Deploying a configuration is possible by either directly calling it, or
+# by specifying a git tag. The tag is used to checkout the repository to a
+# specific commit, and then deploy the configuration on that time.
+# 
+# Similar to deploying, backing up a configuration is possible by specifying
+# a tag name. The tag is created after the files and directories are copied,
+# essentially creating a snapshot of the configuration at that time.
