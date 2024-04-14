@@ -2,184 +2,13 @@
 #
 #       Ferit Yiğit BALABAN <fyb@fybx.dev>, 2024
 #
-import os
-import shlex
-from subprocess import run
-import sys
-
-# Modify SETTINGS dictionary to set runtime variables
-# Access values in dictionary using pre-defined names
-SETTINGS = {
-    'URL_REPO': 'https://github.com/fybx/dotfiles',         # remote repository URL
-    'SHN_REPO': 'fybx/dotfiles',                            # remote shortname
-    'DIR_REPO': '$HOME/shoka/300-399 repos/dotfiles',                     # local repository directory
-    'DIR_CONF': '$HOME/.config',                            # local .config directory
-    'F_DEPLOY': '$HOME/.config/dotman/deploy_list.json',    # path to deploy_list.json file
-}
-
-VER = 'v1.8'
-help_message = f'''
-dotman {VER} dotfiles manager by ferityigitbalaban
-
-Unrecognized keys are ignored. If every key supplied is unrecognized,
-this have the same effect as calling dotman without any key.
- 
-Keys:
--i, --interactive       Interactively backup or deploy dotfiles. Not supplying any key will result in interactive mode.
--b, --backup            Backup your dotfiles. Doesn't require user assistance but errors may occur.
--d, --deploy            Deploy your dotfiles. Doesn't require user assistance but errors may occur.
--v, --version           Shows the version and quits
--h, --help              Shows this message and quits
-'''
-
-
-DL_FILES = []
-DL_DIRS = []
-
-
-def read_deploy_list():
-    """
-    Reads file from SETTINGS.F_DEPLOY to get list of directories and files to deploy
-    """
-    path_deploy_list = SETTINGS['F_DEPLOY']
-    if os.path.exists(path_deploy_list):
-        with open(path_deploy_list, 'r') as f:
-            file = f.read()
-            f.close()
-        dict_deploy_list = json.loads(file)
-        DL_FILES = dict_deploy_list['files']
-        DL_DIRS  = dict_deploy_list['dirs']
-    else:
-        create_deploy_list()
-
-
-def create_deploy_list():
-    """
-    Creates the default deploy_list.json in path SETTINGS.F_DEPLOY
-    """
-    dl_default = {
-            "files": [],
-            "dirs": ["dotman"],
-            }
-    with open(SETTINGS['F_DEPLOY'], 'w') as f:
-        f.write(json.dumps(dl_default, indent = 4))
-        f.close()
-
-
-def copy(source, dest, interactive=False):
-    if interactive:
-        run(shlex.split(f"cp -av {source} {dest}"))
-        return
-    run(shlex.split(f"cp -a {source} {dest}"))
-
-
-def backup():
-    """
-    Aggresively executes the steps to do checksum comparisons between local
-    config directory and local repository to decide which files to copy,
-    copy only changed files, commit and push to remote.
-    """
-    # get list of files and directories to change (F_DEPLOY)
-    # get list of checksums of (F_DEPLOY), compute and compare with local repository
-    # if checksum(local_config) != checksum(local_repo)
-        # copy local_config to local_repo
-    # if exists(local_config in local_repo) is False
-        # copy local_config to local_repo
-    # if exists(F_DEPLOY) but not in local_config
-        # warn for lost file, user must either copy from local_repo to local_config or delete from F_DEPLOY
-    # exec git commit -m "[message]" && git push
-
-
-def deploy(interactive=False):
-    """
-    Kindly executes the steps to get a up-to-date local repository, 
-    deploy (copy) files and directories to the local config directory.
-    """
-    if not os.path.exists(SETTINGS.DIR_REPO):
-        r = SETTINGS.DIR_REPO
-        r.removesuffix("/")[:r.removesuffix("/").rindex("/")]
-        if interactive:
-            print(f"Local repository at {SETTINGS['DIR_REPO']} wasn't found. Cloning at {r}")
-        run(shlex.split(f"/usr/bin/git clone {SETTINGS[URL_REPO]}"), text=True, cwd=r)
-    if interactive:
-        print("Pulling changes")
-    run(shlex.split("/usr/bin/git pull"), text=True, cwd=r)
-    for file in DL_FILES:
-        copy(files, interactive=interactive)
-    for directory in DL_DIRS:
-        copy(directory, interactive=interactive)
-
-
-def expand_settings():
-    """
-    Expands variables used in SETTINGS
-    """
-    SETTINGS['DIR_REPO'] = os.path.expandvars(SETTINGS['DIR_REPO'])
-    SETTINGS['DIR_CONF'] = os.path.expandvars(SETTINGS['DIR_CONF'])
-    SETTINGS['F_DEPLOY'] = os.path.expandvars(SETTINGS['F_DEPLOY'])
-
-
-def main():
-    expand_settings()
-
-    exists_dir_repo = os.path.exists(SETTINGS['DIR_REPO'])
-
-    flag_interactive = False
-    flag_backup = False
-    flag_deploy = False
-    flag_version = False
-    flag_help = False
-    sys.argv.remove(sys.argv[0])
-    sys.argv.reverse()
-    if len(sys.argv) != 0:
-        while len(sys.argv) > 0:
-            key = sys.argv.pop()
-            flag_interactive = flag_interactive or key == '-i' or key == '--interactive'
-            flag_backup = flag_backup or key == '-b' or key == '--backup'
-            flag_deploy = flag_deploy or key == '-d' or key == '--deploy'
-            flag_version = flag_version or key == '-v' or key == '--version'
-            flag_help = flag_help or key == '-h' or key == '--help'
-    else:
-        flag_interactive = True
-
-    if exists_dir_repo:
-        if flag_interactive: 
-            while True:
-                ans = input('(B)ackup or (D)eploy is possible, select one: ').lower()
-                if ans == 'b' or ans == 'd':
-                    break
-            if ans == 'b':
-                backup(flag_interactive)
-            elif ans == 'd':
-                deploy(flag_deploy)
-        else:
-            if flag_backup and not flag_deploy:
-                backup(flag_interactive)
-            elif flag_deploy and not flag_backup:
-                deploy(flag_interactive)
-            else:
-                exit(0)
-    else:
-        if flag_interactive:
-            print(f"local repository directory for {SETTINGS['SHN_REPO']} does not exist")
-            print("You can clone and deploy this repository to local config directory")
-            ans = input("Continue (y/N): ").lower()
-            if ans == "n" and not ans == "y":
-                exit(0)
-            if not flag_interactive and not flag_deploy:
-                exit(0)
-            deploy(flag_interactive)
-
-
-if __name__ == '__main__':
-    main()
 
 # Description
 # dotman is a simple dotfiles manager that can be used to backup and deploy dotfiles.
 # 
 # It manages a git repository to deploy a list of files and directories to 
 # the local .config directory. When the backup command is executed, it 
-# copies the files and directories in the deploy_list.json to the 
+# copies the files and directories in the deploy_list to the 
 # local repository. git is used to keep track of changes.
 #
 # Deploying a configuration is possible by either directly calling it, or
@@ -189,3 +18,224 @@ if __name__ == '__main__':
 # Similar to deploying, backing up a configuration is possible by specifying
 # a tag name. The tag is created after the files and directories are copied,
 # essentially creating a snapshot of the configuration at that time.
+
+# Details
+# * The configuration file for dotman is searched in    $HOME/dotman/config
+# * The repository managed by dotman is searched in     $HOME/dotman/managed_repo
+# * The deploy list for selecting what and what not 
+#   to backup/deploy is searched in                     $HOME/dotman/deploy_list
+
+
+import os
+import shutil
+import tomllib
+import sys
+from datetime import datetime as dt
+
+from git.repo import Repo
+from crispy.crispy import Crispy
+
+
+VER = 'v1.8'
+help_message = f'''
+dotman {VER} dotfiles manager by ferityigitbalaban
+
+Unrecognized keys are ignored. If every key supplied is unrecognized,
+this have the same effect as calling dotman without any key.
+ 
+Keys:
+-b, --backup            Backup your dotfiles. Doesn't require user assistance but errors may occur.
+-d, --deploy            Deploy your dotfiles. Doesn't require user assistance but errors may occur.
+-v, --version           Shows the version and quits
+-h, --help              Shows this message and quits
+'''
+
+
+dir_home = os.path.expandvars('$HOME')
+dir_config = os.path.join(dir_home, '.config')
+params = {}
+list_ignore = []
+list_deploy = []
+
+
+def util_get_all_files(directory: str) -> list[str]:
+    if not os.path.exists(directory):
+        return []
+
+    files = []
+    for root, _, filenames in os.walk(directory):
+        files.extend(os.path.join(root, filename) for filename in filenames)
+    return files
+
+
+def util_errout(msg: str, code: int):
+    print(msg)
+    sys.exit(code)
+
+
+def task_init():
+    global params
+    params = {
+        'managed_repo': f'{dir_config}/dotman/managed_repo',
+        'deploy_list': f'{dir_config}/dotman/deploy_list',
+        'config_file': f'{dir_config}/dotman/config',
+        'repo_url': '',
+    }
+
+
+def task_config():
+    """Reads and parses the configuration file
+    """
+    with open(params['config_file'], 'rb') as f:
+        conf = tomllib.load(f)
+    
+    if 'repo_url' not in conf.keys():
+        util_errout(f'[ERR] expected "repo_url" in {params["config_file"]}', 1)
+    
+    params['repo_url'] = conf['repo_url']
+
+
+def task_repo():
+    is_repo = os.path.exists(f"{params['managed_repo']}/.git")
+    
+    if not is_repo:
+        Repo.clone_from(params['repo_url'], params['managed_repo'])
+    else:
+        repo = Repo(params['managed_repo'])
+        repo.remotes.origin.pull()
+
+
+def task_list():
+    with open(params['deploy_list'], 'r') as f:
+        lines = f.readlines()
+        lines = [l.strip() for l in lines]
+        lines = [l for l in lines if l]
+    
+    for line in lines:
+        ignore_it = False
+        if line.startswith('#'):
+            continue
+        if line.startswith('!'):
+            ignore_it = True
+            line = line.removeprefix('!')
+        if line.startswith('%'):
+            line = os.path.join(dir_config, line.replace('%', ''))
+        else:
+            line = os.path.join(dir_home, line)
+        
+        
+        if os.path.isfile(line):
+            if ignore_it:   list_ignore.append(line)
+            else:           list_deploy.append(line)
+        else:
+            if ignore_it:   list_ignore.extend(util_get_all_files(line))
+            else:           list_deploy.extend(util_get_all_files(line))
+        
+        for element in list_ignore:
+            if element in list_deploy:
+                list_deploy.remove(element)
+    
+    with open(f'{dir_home}/dotman.log', 'w') as f:
+        f.writelines(map(lambda x: x + '\n', list_deploy))
+
+
+def backup(tag=''):
+    """Copies files and directories denoted in deploy_list from their source to
+    managed_repo directory.
+
+    Args:
+        tag (str, optional): Git tag to publish for the commit. Defaults to ''.
+    """
+    for file in list_deploy:
+        file_in_repo = util_path('backup', file)
+        print(file_in_repo)
+        os.makedirs(os.path.dirname(file_in_repo), exist_ok=True)
+        shutil.copy(file, file_in_repo)
+    
+    repo = Repo(params['managed_repo'])
+    repo.git.add(all=True)
+    repo.git.commit('-m', 'committed by dotman')
+    repo.remotes.origin.push()
+    
+    if tag != '':
+        if tag in map(lambda x: x.replace('refs/tags/', ''), repo.tags):
+            return
+        created_tag = repo.create_tag(tag)
+        repo.remotes.origin.push(created_tag.name)
+
+
+def deploy(tag=''):
+    """Copies files and directories in managed Git repository to 
+    local .config directory, if they are present in the deploy list.
+    
+    Optinally, a tag can be specified to deploy a specific configuration.
+
+    Args:
+        tag (str, optional): Git tag for a specific configuration. Defaults to ''.
+    """
+    if tag != '':
+        repo = Repo(params['managed_repo'])
+        repo.git.checkout(tag)
+        task_list()
+    
+    for file in list_deploy:
+        file_in_repo = util_path('deploy', file)
+        os.makedirs(os.path.dirname(file), exist_ok=True)
+        shutil.copy(file_in_repo, file)
+
+
+def util_path(mode, path):
+    if mode == 'deploy':
+        return os.path.join(params['managed_repo'], os.path.relpath(path, dir_home))
+    elif mode == 'backup':
+        return os.path.join(params['managed_repo'], os.path.relpath(path, dir_home))
+    else:
+        raise ValueError(mode)
+
+
+def main():
+    if len(sys.argv) == 1:
+        print(help_message)
+        sys.exit(0)
+    
+    task_init()
+    task_config()
+    task_repo()
+    task_list()
+    
+    c = Crispy()
+    c.add_variable('backup', bool)
+    c.add_variable('deploy', bool)
+    c.add_variable('tag', str)
+    
+    args = c.parse_arguments(sys.argv[1:])
+    
+    if args['backup'] and args['deploy']:
+        util_errout('[ERR] can\'t do both, sorry :(', 11)
+    elif args['backup']:
+        backup(args['tag'] if 'tag' in args.keys() else '')
+    elif args['deploy']:
+        deploy(args['tag'])
+
+
+if __name__ == '__main__':
+    main()
+
+# Tasks
+# 1. expand dir_config
+# 2. read configuration file
+# 3. check managed_repo status
+#       1. create if necessary
+#       2. or pull changes
+# 4. read deploy_list
+
+# command is deploy (tag?)
+# 1. if tag is specified, checkout to that tag
+# 2. copy files and directories in deploy_list (ask for using the same deploy_list) to local .config directory
+
+# command is backup (tag?)
+# 1. copy using deploy_list from sources to repository directory
+# 2. create a new commit and push
+# 3. if tag is specified, check if tag exists
+#       1. if tag does not exist, create tag and push
+#       2. if tag exists, warn and exit
