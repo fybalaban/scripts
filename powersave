@@ -5,8 +5,19 @@
 
 echo "go crazy! go stupid!"
 sudo cpupower frequency-set -g powersave
-sudo echo power | tee /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference
-bash "$HOME/scripts/utility/change_hyprland_mode.sh" save
+echo "power" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference > /dev/null
+# bash "$HOME/scripts/utility/change_hyprland_mode.sh" save
 sudo powertop --auto-tune
+
 systemctl --user stop deskenv.timer
+warp-cli disconnect
+sudo systemctl stop warp-svc.service
+sudo tailscale down
+sudo systemctl stop tailscaled.service
+sudo systemctl stop syncthing@ferit.service
+
 killall swww-daemon
+hyprctl keyword monitor eDP-1,1920x1080@60,0x0,1
+hyprctl keyword decoration:blur:enabled no
+hyprctl keyword decoration:drop_shadow no
+hyprctl keyword animations:enabled no
