@@ -4,10 +4,10 @@
 #
 #       Select an area with slurp, ss with grim 
 #       and copy to clipboard.
-SS="/media/fyb/share/shoka/swap/screenshots"
-TEMP_FILE="$HOME/temporary_screenshot"
+SS="/media/yigid/share/shoka/swap/screenshots"
+TEMP_FILE="$HOME/temp_file"
 
-grim -c -g "$( slurp )" "$TEMP_FILE"
+grim -g "$( slurp )" "$TEMP_FILE"
 
 if [ $? -eq 0 ]; then
   wl-copy --type image/png < "$TEMP_FILE"
