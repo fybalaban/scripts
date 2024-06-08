@@ -4,7 +4,7 @@
 # and print to stdout (-)
 # 2. the data printed to stdout is piped to wl-copy and it's copied
 # 3. the data is pasted to a file in folder $SS
-SS="/media/yigid/share/shoka/swap/screenshots"
+SS="/media/yigid/share/shoka/photos/Screenshots"
 TEMP_FILE="$HOME/temp_file"
 ACTIVE_MON=$( hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .name' )
 

@@ -4,7 +4,7 @@
 #
 #       Select an area with slurp, ss with grim 
 #       and copy to clipboard.
-SS="/media/yigid/share/shoka/swap/screenshots"
+SS="/media/yigid/share/shoka/photos/Screenshots"
 TEMP_FILE="$HOME/temp_file"
 
 grim -g "$( slurp )" "$TEMP_FILE"
