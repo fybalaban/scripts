@@ -30,7 +30,6 @@ import os
 import shutil
 import tomllib
 import sys
-from datetime import datetime as dt
 
 from git.repo import Repo
 from crispy.crispy import Crispy
@@ -208,8 +207,8 @@ def main():
     c.add_variable('deploy', bool)
     c.add_variable('tag', str)
     
-    args = c.parse_arguments(sys.argv[1:])
-    
+    args = c.parse_arguments(sys.argv[1:])[1]
+
     if args['backup'] and args['deploy']:
         util_errout('[ERR] can\'t do both, sorry :(', 11)
     elif args['backup']:
@@ -239,3 +238,4 @@ if __name__ == '__main__':
 # 3. if tag is specified, check if tag exists
 #       1. if tag does not exist, create tag and push
 #       2. if tag exists, warn and exit
+
