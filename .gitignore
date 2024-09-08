@@ -1,10 +1,4 @@
-.swp
-.idea/
-.vscode/
-Pywal/
-fetch.theme
-followed
-follower
-follower2
-test
-.maclist
+# executables
+pdstm
+nowplaying
+
