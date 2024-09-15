@@ -1,241 +1,308 @@
 #!/usr/bin/env python3
 #
-#       Ferit Yiğit BALABAN <fyb@fybx.dev>, 2024
+#       Yiğid BALABAN <fyb@fybx.dev>, 2024
 #
 
-# Description
+# dotman
+#
+# [S] Description
 # dotman is a simple dotfiles manager that can be used to backup and deploy dotfiles.
-# 
-# It manages a git repository to deploy a list of files and directories to 
-# the local .config directory. When the backup command is executed, it 
-# copies the files and directories in the deploy_list to the 
+#
+# It manages a git repository to deploy a list of files and directories to
+# the local .config directory. When the backup command is executed, it
+# copies the files and directories in the deploy_list to the
 # local repository. git is used to keep track of changes.
 #
 # Deploying a configuration is possible by either directly calling it, or
 # by specifying a git tag. The tag is used to checkout the repository to a
 # specific commit, and then deploy the configuration on that time.
-# 
+#
 # Similar to deploying, backing up a configuration is possible by specifying
 # a tag name. The tag is created after the files and directories are copied,
 # essentially creating a snapshot of the configuration at that time.
 
-# Details
-# * The configuration file for dotman is searched in    $HOME/dotman/config
-# * The repository managed by dotman is searched in     $HOME/dotman/managed_repo
-# * The deploy list for selecting what and what not 
-#   to backup/deploy is searched in                     $HOME/dotman/deploy_list
-
+# [S] Details
+# * The configuration file for dotman is locatd in      $HOME/.config/dotman/config
+# * The deploy list for selecting what and what not     $HOME/.config/dotman/deploy_list
+#   to backup/deploy is searched in
+# * The repository managed by dotman is located in      $HOME/.local/state/dotman/managed_repo
 
 import os
 import shutil
-import tomllib
 import sys
 
 from git.repo import Repo
 from crispy.crispy import Crispy
+from tomlkit import dumps as toml_dumps
+from tomlkit import parse as toml_parse
+from tomlkit.items import String as toml_String
+from tomlkit.items import Item as toml_Item
+from os.path import join, relpath
 
-
-VER = 'v1.8'
+VER = 'v2'
 help_message = f'''
-dotman {VER} dotfiles manager by ferityigitbalaban
+dotman {VER} dotfiles/home backup helper by yigid balaban
 
-Unrecognized keys are ignored. If every key supplied is unrecognized,
-this have the same effect as calling dotman without any key.
- 
-Keys:
--b, --backup            Backup your dotfiles. Doesn't require user assistance but errors may occur.
--d, --deploy            Deploy your dotfiles. Doesn't require user assistance but errors may occur.
--v, --version           Shows the version and quits
--h, --help              Shows this message and quits
+Commands:
+=> init         Initialize dotman installation.
+-u, --url       [required] the URL of remote
+-l, --local     [optional] create repository locally
+-d, --deploy    [optional] deploy configuration
+
+=> backup       Backups configuration to managed_repo (pushes to remote)
+=> deploy       Deploys configuration in place from managed_repo (pulls remote)
+=> help         Prints this message.
+=> version      Prints the version.
 '''
 
-
+INITIALIZED = False
 dir_home = os.path.expandvars('$HOME')
-dir_config = os.path.join(dir_home, '.config')
+dir_config = join(dir_home, '.config')
+dir_state = join(dir_home, '.local', 'state')
 params = {}
-list_ignore = []
-list_deploy = []
 
 
-def util_get_all_files(directory: str) -> list[str]:
+def u_path(mode, path):
+    if mode == 'deploy':
+        return join(params['managed_repo'], relpath(path, dir_home))
+    elif mode == 'backup':
+        return join(params['managed_repo'], relpath(path, dir_home))
+    else:
+        raise ValueError(mode)
+
+
+def u_get_files(directory: str) -> list[str]:
     if not os.path.exists(directory):
         return []
 
     files = []
     for root, _, filenames in os.walk(directory):
-        files.extend(os.path.join(root, filename) for filename in filenames)
+        files.extend(join(root, filename) for filename in filenames)
     return files
 
 
-def util_errout(msg: str, code: int):
-    print(msg)
-    sys.exit(code)
+def t_init():
+    global INITIALIZED
+    if INITIALIZED:
+        return
+    INITIALIZED = True
 
-
-def task_init():
     global params
     params = {
-        'managed_repo': f'{dir_config}/dotman/managed_repo',
+        'managed_repo': f'{dir_state}/dotman/managed_repo',
         'deploy_list': f'{dir_config}/dotman/deploy_list',
         'config_file': f'{dir_config}/dotman/config',
         'repo_url': '',
     }
 
-
-def task_config():
-    """Reads and parses the configuration file
-    """
-    with open(params['config_file'], 'rb') as f:
-        conf = tomllib.load(f)
-    
-    if 'repo_url' not in conf.keys():
-        util_errout(f'[ERR] expected "repo_url" in {params["config_file"]}', 1)
-    
-    params['repo_url'] = conf['repo_url']
-
-
-def task_repo():
-    is_repo = os.path.exists(f"{params['managed_repo']}/.git")
-    
-    if not is_repo:
-        Repo.clone_from(params['repo_url'], params['managed_repo'])
+    if os.path.exists(params['config_file']):
+        with open(params['config_file'], 'r') as f:
+            data = toml_parse(f.read())
+            params.update({k: str(v) if isinstance(v, (toml_String, toml_Item)) else v for k, v in data.items()})
     else:
-        repo = Repo(params['managed_repo'])
-        repo.remotes.origin.pull()
+        with open(params['config_file'], 'w') as f:
+            f.write(toml_dumps(params))
 
 
-def task_list():
-    with open(params['deploy_list'], 'r') as f:
+is_local_repo_created = lambda: os.path.exists(f"{params['managed_repo']}/.git")
+
+
+def t_make_repo(from_url: str, local = False, check = True):
+    """
+    Create the local repository either by cloning from a remote, or by initializing it.
+
+    :param str from_url: URL of the remote
+    :param bool local: Whether to create locally (default = False)
+    :param bool check: Whether to check if local repository exists (default = True)
+    """
+    if check and is_local_repo_created():
+        print('[W] dotman: a managed repository was initialized. overriding contents')
+    if local:
+        r = Repo.init(params['managed_repo'])
+        r.create_remote('origin', url=from_url)
+        r.git.checkout('-b', 'main')
+        return
+    print(f'[I] dotman: cloning from remote {params['repo_url']}')
+    Repo.clone_from(from_url, params['managed_repo'])
+
+
+def t_pull_repo(overwrite: bool):
+    try:
+        # clone the repo from remote if local doesn't exist
+        # or if we are allowed to overwrite existing local
+        p_local_exists = is_local_repo_created()
+        if not p_local_exists or overwrite:
+            if p_local_exists:
+                shutil.rmtree(params['managed_repo'])
+            t_make_repo(params['repo_url'], check=False)
+        else:
+            # repo exists and it's forbidden to overwrite
+            repo = Repo(params['managed_repo'])
+            repo.remotes.origin.pull()
+    except Exception as e:
+        print(f'[E] dotman: unhandled error in \'t_pull_repo\': {e}')
+        return False
+    return True
+
+
+def t_set_params(param_key: str, param_value: str):
+    params[param_key] = param_value
+    with open(params['config_file'], 'w') as f:
+        f.write(toml_dumps(params))
+
+
+def t_list(p_list: str) -> list[str]:
+    l_i, l_d = [], []
+
+    with open(p_list, 'r') as f:
         lines = f.readlines()
-        lines = [l.strip() for l in lines]
-        lines = [l for l in lines if l]
-    
+    lines = [l.strip() for l in lines]
+    lines = [l for l in lines if l]
+
     for line in lines:
         ignore_it = False
+
         if line.startswith('#'):
             continue
+
         if line.startswith('!'):
             ignore_it = True
             line = line.removeprefix('!')
-        if line.startswith('%'):
-            line = os.path.join(dir_config, line.replace('%', ''))
-        else:
-            line = os.path.join(dir_home, line)
-        
-        
+        elif '.git' in line:
+            ignore_it = True
+
+        line = join(dir_config, line[1:]) if line.startswith('%') else join(dir_home, line)
+
         if os.path.isfile(line):
-            if ignore_it:   list_ignore.append(line)
-            else:           list_deploy.append(line)
+            if ignore_it:   l_i.append(line)
+            else:           l_d.append(line)
         else:
-            if ignore_it:   list_ignore.extend(util_get_all_files(line))
-            else:           list_deploy.extend(util_get_all_files(line))
-        
-        for element in list_ignore:
-            if element in list_deploy:
-                list_deploy.remove(element)
-    
-    with open(f'{dir_home}/dotman.log', 'w') as f:
-        f.writelines(map(lambda x: x + '\n', list_deploy))
+            if ignore_it:   l_i.extend(u_get_files(line))
+            else:           l_d.extend(u_get_files(line))
+
+    for element in l_i:
+        if element in l_d:
+            l_d.remove(element)
+
+    with open(join(dir_state, 'dotman', 'dotman.log'), 'w') as f:
+        f.writelines(map(lambda x: x + '\n', l_d))
+    return l_d
 
 
-def backup(tag=''):
-    """Copies files and directories denoted in deploy_list from their source to
-    managed_repo directory.
+def a_backup():
+    l_deploy = t_list(params['deploy_list'])
 
-    Args:
-        tag (str, optional): Git tag to publish for the commit. Defaults to ''.
-    """
-    for file in list_deploy:
-        file_in_repo = util_path('backup', file)
-        print(file_in_repo)
+    if len(l_deploy) == 0:
+        print('[W] dotman: deploy_list is not created or empty. nothing will be backed up.')
+        return False
+
+    for file in l_deploy:
+        file_in_repo = u_path('backup', file)
         os.makedirs(os.path.dirname(file_in_repo), exist_ok=True)
         shutil.copy(file, file_in_repo)
-    
+
     repo = Repo(params['managed_repo'])
     repo.git.add(all=True)
-    repo.git.commit('-m', 'committed by dotman')
-    repo.remotes.origin.push()
-    
-    if tag != '':
-        if tag in map(lambda x: x.replace('refs/tags/', ''), repo.tags):
-            return
-        created_tag = repo.create_tag(tag)
-        repo.remotes.origin.push(created_tag.name)
+
+    if repo.index.diff(None) or repo.untracked_files:
+        repo.git.commit('-m', 'committed by dotman')
+        repo.remotes.origin.push('main')
+    return True
 
 
-def deploy(tag=''):
-    """Copies files and directories in managed Git repository to 
-    local .config directory, if they are present in the deploy list.
-    
-    Optinally, a tag can be specified to deploy a specific configuration.
+def a_deploy(use_deploy_list_in_managed_repo = False):
+    l_deploy = t_list(os.path.join(params['managed_repo'], 'dotman', 'deploy_list')) if use_deploy_list_in_managed_repo else t_list(params['deploy_list'])
 
-    Args:
-        tag (str, optional): Git tag for a specific configuration. Defaults to ''.
-    """
-    if tag != '':
-        repo = Repo(params['managed_repo'])
-        repo.git.checkout(tag)
-        task_list()
-    
-    for file in list_deploy:
-        file_in_repo = util_path('deploy', file)
+    if len(l_deploy) == 0:
+        print('[W] dotman: deploy_list is not created or empty. nothing will be deployed.')
+        return False
+
+    for file in l_deploy:
+        file_in_repo = u_path('deploy', file)
         os.makedirs(os.path.dirname(file), exist_ok=True)
         shutil.copy(file_in_repo, file)
-
-
-def util_path(mode, path):
-    if mode == 'deploy':
-        return os.path.join(params['managed_repo'], os.path.relpath(path, dir_home))
-    elif mode == 'backup':
-        return os.path.join(params['managed_repo'], os.path.relpath(path, dir_home))
-    else:
-        raise ValueError(mode)
+    return True
 
 
 def main():
     if len(sys.argv) == 1:
         print(help_message)
         sys.exit(0)
-    
-    task_init()
-    task_config()
-    task_repo()
-    task_list()
-    
-    c = Crispy()
-    c.add_variable('backup', bool)
-    c.add_variable('deploy', bool)
-    c.add_variable('tag', str)
-    
-    args = c.parse_arguments(sys.argv[1:])[1]
 
-    if args['backup'] and args['deploy']:
-        util_errout('[ERR] can\'t do both, sorry :(', 11)
-    elif args['backup']:
-        backup(args['tag'] if 'tag' in args.keys() else '')
-    elif args['deploy']:
-        deploy(args['tag'])
+    t_init()
+    c = Crispy()
+    c.add_subcommand('init', 'Initialize dotman for use')
+    c.add_subcommand('config', 'Configure dotman')
+    c.add_variable('url', str)
+    c.add_variable('local', bool)
+    c.add_variable('deploy', bool)
+
+    c.add_subcommand('deploy', 'Deploy a configuration to place')
+    c.add_subcommand('backup', 'Backup current state following a deploy list')
+    c.add_variable('tag', str)
+
+    subcommand, args = c.parse_arguments(sys.argv[1:])
+
+    match subcommand:
+        case 'init':
+            if args['url'] and type(args['url']) == str:
+                t_set_params('repo_url', str(args['url']))
+                if not args['local']:
+                    s_pull = t_pull_repo(overwrite=True)
+                    if args['deploy'] and s_pull:
+                        a_deploy(True)
+                else:
+                    t_make_repo(args['url'], True)
+        case 'config':
+            if args['url']: t_set_params('repo_url', str(args['url']))
+        case 'deploy':
+            if t_pull_repo(False):
+                a_deploy()
+        case 'backup':
+            a_backup()
+        case 'help':
+            print(help_message)
+        case 'version':
+            print(VER)
+        case _:
+            print(help_message)
 
 
 if __name__ == '__main__':
     main()
 
-# Tasks
-# 1. expand dir_config
-# 2. read configuration file
-# 3. check managed_repo status
-#       1. create if necessary
-#       2. or pull changes
-# 4. read deploy_list
 
-# command is deploy (tag?)
-# 1. if tag is specified, checkout to that tag
-# 2. copy files and directories in deploy_list (ask for using the same deploy_list) to local .config directory
+# def backup(tag=''):
+#     """Copies files and directories denoted in deploy_list from their source to
+#     managed_repo directory.
+# 
+#     Args:
+#         tag (str, optional): Git tag to publish for the commit. Defaults to ''.
+#     """
+#     if tag != '':
+#         if tag in map(lambda x: x.replace('refs/tags/', ''), repo.tags):
+#             return
+#         created_tag = repo.create_tag(tag)
+#         repo.remotes.origin.push(created_tag.name)
 
-# command is backup (tag?)
-# 1. copy using deploy_list from sources to repository directory
-# 2. create a new commit and push
-# 3. if tag is specified, check if tag exists
-#       1. if tag does not exist, create tag and push
-#       2. if tag exists, warn and exit
+
+# def deploy(tag=''):
+#     """Copies files and directories in managed Git repository to 
+#     local .config directory, if they are present in the deploy list.
+#     
+#     Optinally, a tag can be specified to deploy a specific configuration.
+# 
+#     Args:
+#         tag (str, optional): Git tag for a specific configuration. Defaults to ''.
+#     """
+#     if tag != '':
+#         repo = Repo(params['managed_repo'])
+#         repo.git.checkout(tag)
+#         t_list()
+#     
+#     for file in list_deploy:
+#         file_in_repo = util_path('deploy', file)
+#         os.makedirs(os.path.dirname(file), exist_ok=True)
+#         shutil.copy(file_in_repo, file)
+
 
